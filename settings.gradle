@@ -1,0 +1,5 @@
+rootProject.name='ShadowState'
+include ':app'
+include ':shadowstate'
+include ':shadowstate-annotation'
+include ':shadowstate-compiler'

@@ -13,6 +13,4 @@ class TestAgent : StateAgent<TestState, MainActivity>() {
             setState { it.copy(amendInternal = it.amendInternal+1) }
         })
     }
-
-
 }

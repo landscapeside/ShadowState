@@ -1,4 +1,4 @@
-package com.landside.shadowstate.example
+package com.landside.example
 
 data class TestState(
     val name: String,

@@ -19,3 +19,15 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+
+-keep class com.landside.shadowstate.** { *; }
+-keep interface com.landside.shadowstate.** { *; }
+-keep @com.landside.shadowstate_annotation.BindAgent class * {*;}
+-keep @com.landside.shadowstate_annotation.BindState class * {*;}
+-keep @com.landside.shadowstate_annotation.InjectAgent class * {*;}
+-keep class **.**Binder {*;}
+-keepclassmembers class ** {
+    @com.landside.shadowstate_annotation.InjectAgent *;
+    <init>();
+}

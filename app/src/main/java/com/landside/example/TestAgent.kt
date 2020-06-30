@@ -1,9 +1,9 @@
-package com.landside.shadowstate.example
+package com.landside.example
 
 import android.os.Bundle
 import com.landside.shadowstate.StateAgent
 
-class TestAgent : StateAgent<TestState, MainActivity>() {
+class TestAgent : StateAgent<TestState, MainView>() {
     override fun initState(bundle: Bundle?): TestState =
         TestState("hahah")
 

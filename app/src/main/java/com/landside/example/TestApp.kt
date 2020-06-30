@@ -1,4 +1,4 @@
-package com.landside.shadowstate.example
+package com.landside.example
 
 import android.app.Application
 import com.landside.shadowstate.BuildConfig

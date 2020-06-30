@@ -4,11 +4,31 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 
 android {
+  signingConfigs {
+    debug {
+      v1SigningEnabled true
+      v2SigningEnabled true
+      storeFile file("../test.jks")
+      storePassword "123456"
+      keyAlias "sibo"
+      keyPassword "123456"
+    }
+
+    release {
+      v1SigningEnabled true
+      v2SigningEnabled true
+      storeFile file("../test.jks")
+      storePassword "123456"
+      keyAlias "sibo"
+      keyPassword "123456"
+    }
+  }
+
   compileSdkVersion rootProject.ext.compileSdkVersion
   buildToolsVersion rootProject.ext.buildToolsVersion
 
   defaultConfig {
-    applicationId "com.landside.shadowstate"
+    applicationId "com.landside.shadowstate.app"
     minSdkVersion rootProject.ext.minSdkVersion
     targetSdkVersion rootProject.ext.targetSdkVersion
     versionCode rootProject.ext.versionMajor * 100 +
@@ -21,8 +41,14 @@ android {
   }
 
   buildTypes {
+    debug{
+      minifyEnabled true
+      shrinkResources true
+      proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+    }
     release {
-      minifyEnabled false
+      minifyEnabled true
+      signingConfig signingConfigs.release
       proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
     }
   }
@@ -38,6 +64,9 @@ dependencies {
   androidTestImplementation 'androidx.test.ext:junit:1.1.1'
   androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 
-  implementation project(":shadowstate")
-  kapt project(':shadowstate-compiler')
+//  implementation project(":shadowstate")
+//  kapt project(':shadowstate-compiler')
+
+  implementation "com.github.landscapeside.ShadowState:shadowstate:0.0.1"
+  kapt 'com.github.landscapeside.ShadowState:shadowstate-compiler:0.0.1'
 }

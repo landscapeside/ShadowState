@@ -3,9 +3,9 @@ package com.landside.example
 import android.os.Bundle
 import com.landside.shadowstate.StateAgent
 
-class TestAgent : StateAgent<TestState, MainView>() {
-    override fun initState(bundle: Bundle?): TestState =
-        TestState("hahah")
+class MainAgent : StateAgent<MainState, MainView>() {
+    override fun initState(bundle: Bundle?): MainState =
+        MainState("hahah")
 
     override fun conf() {
         listen({ it.name }, {

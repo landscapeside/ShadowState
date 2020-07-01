@@ -14,7 +14,9 @@ allprojects {
 ```
 
 ```groovy
-implementation "com.github.landscapeside.ShadowState:shadowstate:<version>"
+implementation("com.github.landscapeside.ShadowState:shadowstate:<version>"){
+    exclude group: 'org.reactivestreams', module: 'reactive-streams'
+} 
 kapt 'com.github.landscapeside.ShadowState:shadowstate-compiler:<version>'
 ```
 

@@ -49,7 +49,7 @@ dependencies {
     implementation rootProject.ext.liveDataToRxJava
     implementation rootProject.ext.liveDataRx
     implementation rootProject.ext.rxJava
-    implementation rootProject.ext.rxAndroid
+//    implementation rootProject.ext.rxAndroid
 
     implementation rootProject.ext.logger
     implementation rootProject.ext.gson

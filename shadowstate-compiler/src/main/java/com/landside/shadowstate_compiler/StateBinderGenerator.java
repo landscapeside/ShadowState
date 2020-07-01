@@ -51,12 +51,19 @@ public class StateBinderGenerator {
                 .addStatement("agent.setStateObservable(state)")
                 .addStatement("agent.setView(($T) owner)",ClassName.get((TypeElement) mClassElement))
                 .addStatement("if (owner instanceof $T) {\n" +
-                        "            state.setValue((TestState) agent.initState((($T) owner).getIntent().getExtras()));\n" +
-                        "        } else if (owner instanceof $T) {\n" +
-                        "            state.setValue((TestState) agent.initState((($T) owner).getArguments()));\n" +
-                        "        } else {\n" +
-                        "            throw new IllegalArgumentException(\"\");\n" +
-                        "        }",TypeClass.FragmentActivity,TypeClass.FragmentActivity,TypeClass.Fragment,TypeClass.Fragment)
+                        "  state.setValue(($T) agent.initState((($T) owner).getIntent().getExtras()));\n" +
+                        "} else if (owner instanceof $T) {\n" +
+                        "  state.setValue(($T) agent.initState((($T) owner).getArguments()));\n" +
+                        "} else {\n" +
+                        "  throw new IllegalArgumentException(\"\");\n" +
+                        "}",
+                        TypeClass.FragmentActivity,
+                        ClassName.get(stateCls),
+                        TypeClass.FragmentActivity,
+                        TypeClass.Fragment,
+                        ClassName.get(stateCls),
+                        TypeClass.Fragment
+                )
                 .addStatement("state.observe(owner, agent)")
                 .build();
         String clsName = stateCls.toString().substring(stateCls.toString().lastIndexOf(".")+1);

@@ -64,9 +64,9 @@ dependencies {
   androidTestImplementation 'androidx.test.ext:junit:1.1.1'
   androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 
-//  implementation project(":shadowstate")
-//  kapt project(':shadowstate-compiler')
+  implementation project(":shadowstate")
+  kapt project(':shadowstate-compiler')
 
-  implementation "com.github.landscapeside.ShadowState:shadowstate:0.0.1"
-  kapt 'com.github.landscapeside.ShadowState:shadowstate-compiler:0.0.1'
+//  implementation "com.github.landscapeside.ShadowState:shadowstate:0.0.1"
+//  kapt 'com.github.landscapeside.ShadowState:shadowstate-compiler:0.0.1'
 }

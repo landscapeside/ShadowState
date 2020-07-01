@@ -8,8 +8,8 @@ import com.landside.shadowstate_annotation.BindAgent
 import com.landside.shadowstate_annotation.BindState
 import kotlinx.android.synthetic.main.activity_main.*
 
-@BindState(TestState::class)
-@BindAgent(TestAgent::class)
+@BindState(MainState::class)
+@BindAgent(MainAgent::class)
 class MainActivity : AppCompatActivity(),MainView {
   lateinit var presenter:TestPresenter
 

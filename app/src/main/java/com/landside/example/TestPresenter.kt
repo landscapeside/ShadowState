@@ -10,7 +10,7 @@ class TestPresenter {
     }
 
     @InjectAgent
-    lateinit var agent: TestAgent
+    lateinit var agent: MainAgent
 
 
     fun changeName(){

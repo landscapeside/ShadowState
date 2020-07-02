@@ -1,11 +1,13 @@
 package com.landside.example
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import com.landside.shadowstate.ShadowState
 import com.landside.shadowstate_annotation.BindAgent
 import com.landside.shadowstate_annotation.BindState
+import com.landside.submodule.SubActivity
 import kotlinx.android.synthetic.main.activity_main.*
 
 @BindState(MainState::class)
@@ -26,5 +28,9 @@ class MainActivity : AppCompatActivity(),MainView {
 
   fun changeName(view: View) {
     presenter.changeName()
+  }
+
+  fun toSub(view: View) {
+    startActivity(Intent(this, SubActivity::class.java))
   }
 }

@@ -6,6 +6,7 @@ public class TypeClass {
     public static final ClassName StateManager = ClassName.get("com.landside.shadowstate","StateManager");
     public static final ClassName StateBinder = ClassName.get("com.landside.shadowstate","StateBinder");
     public static final ClassName StateAgent = ClassName.get("com.landside.shadowstate","StateAgent");
+    public static final ClassName AgentInjection = ClassName.get("com.landside.shadowstate","AgentInjection");
     public static final ClassName MutableLiveData = ClassName.get("androidx.lifecycle","MutableLiveData");
     public static final ClassName LifecycleOwner = ClassName.get("androidx.lifecycle","LifecycleOwner");
     public static final ClassName Fragment = ClassName.get("androidx.fragment.app","Fragment");

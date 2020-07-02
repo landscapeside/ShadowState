@@ -20,7 +20,6 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
-
 -keep class com.landside.shadowstate.** { *; }
 -keep interface com.landside.shadowstate.** { *; }
 -keep @com.landside.shadowstate_annotation.BindAgent class * {*;}
@@ -33,7 +32,6 @@
     @com.landside.shadowstate_annotation.InjectAgent *;
     <init>();
 }
-
 
 # RxJava RxAndroid
 -dontwarn sun.misc.**

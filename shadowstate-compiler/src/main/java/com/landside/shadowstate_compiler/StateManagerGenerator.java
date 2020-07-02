@@ -25,13 +25,19 @@ import javax.lang.model.type.MirroredTypeException;
 import javax.lang.model.type.TypeMirror;
 
 public class StateManagerGenerator {
+    private String packageName;
+    private String className;
     private Set<? extends Element> bindStates;
     private Set<? extends Element> bindAgents;
 
     public StateManagerGenerator(
+            String packageName,
+            String className,
             Set<? extends Element> bindStates,
             Set<? extends Element> bindAgents
     ) {
+        this.packageName = packageName;
+        this.className = className;
         this.bindStates = bindStates;
         this.bindAgents = bindAgents;
     }
@@ -129,22 +135,22 @@ public class StateManagerGenerator {
                 .addModifiers(Modifier.PUBLIC)
                 .addAnnotation(AnnotationSpec.builder(Override.class).build())
                 .addParameter(Object.class, "instance")
-                .addStatement("$T<Class<?>> agentClasses = AgentInjection.INSTANCE.getAgents(instance)",
-                        ClassName.get(List.class))
+                .addStatement("$T<Class<?>> agentClasses = $T.INSTANCE.getAgents(instance)",
+                        ClassName.get(List.class),TypeClass.AgentInjection)
                 .addStatement("for (Class<?> cls : agentClasses) {\n" +
-                        "            for (Map.Entry<Class<?>, StateAgent> entry :\n" +
-                        "                    stateAgentMap.entrySet()) {\n" +
-                        "                if (entry.getValue().getClass() == cls) {\n" +
-                        "                    AgentInjection.INSTANCE.inject(\n" +
-                        "                            instance,\n" +
-                        "                            entry.getValue()\n" +
-                        "                    );\n" +
-                        "                }\n" +
-                        "            }\n" +
-                        "        }")
+                        " for (Map.Entry<Class<?>, StateAgent> entry :\n" +
+                        "     stateAgentMap.entrySet()) {\n" +
+                        "        if (entry.getValue().getClass() == cls) {\n" +
+                        "            $T.INSTANCE.inject(\n" +
+                        "             instance,\n" +
+                        "             entry.getValue()\n" +
+                        "           );\n" +
+                        "        }\n" +
+                        "     }\n" +
+                        " }",TypeClass.AgentInjection)
                 .build();
 
-        TypeSpec generateClass = TypeSpec.classBuilder("ShadowStateManager")
+        TypeSpec generateClass = TypeSpec.classBuilder(className)
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                 .addSuperinterface(TypeClass.StateManager)
                 .addMethod(constructorBuilder.build())
@@ -154,7 +160,7 @@ public class StateManagerGenerator {
                 .addField(dispatcherMapParam)
                 .addField(binderMapParam)
                 .build();
-        return JavaFile.builder("com.landside.shadowstate", generateClass)
+        return JavaFile.builder(packageName, generateClass)
                 .build();
     }
 }

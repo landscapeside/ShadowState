@@ -73,14 +73,25 @@ class MainActivity : AppCompatActivity() {
 }
 ```
 
-rebuild后会生成`ShadowStateManager`，在`Application`里面初始化
+* 声明状态管理器
+
+```kotlin
+
+// 创建一个空类，并配上StateManagerProvider
+@StateManagerProvider
+class Main 
+
+```
+
+rebuild后会生成`*StateManager`，在`Application`里面初始化
+
 ```kotlin
 class TestApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        ShadowState.install(
-            ShadowStateManager(),
+        ZipStateManager.zip(MainStateManager())
+        ShadowState.init(
             BuildConfig.DEBUG
         )
     }
@@ -95,7 +106,9 @@ class TestApp : Application() {
 -keep @com.landside.shadowstate_annotation.BindAgent class * {*;}
 -keep @com.landside.shadowstate_annotation.BindState class * {*;}
 -keep @com.landside.shadowstate_annotation.InjectAgent class * {*;}
+-keep @com.landside.shadowstate_annotation.StateManagerProvider class * {*;}
 -keep class **.**Binder {*;}
+-keep class **.**StateManager {*;}
 -keepclassmembers class ** {
     @com.landside.shadowstate_annotation.InjectAgent *;
     <init>();

@@ -4,12 +4,11 @@ import androidx.lifecycle.LifecycleOwner
 import com.orhanobut.logger.AndroidLogAdapter
 import com.orhanobut.logger.Logger
 import com.orhanobut.logger.PrettyFormatStrategy
+import java.lang.IllegalStateException
 
 object ShadowState {
 
-    private var stateManager: StateManager? = null
-    fun install(stateManager: StateManager,loggable:Boolean) {
-        this.stateManager = stateManager
+    fun init(loggable:Boolean) {
         Logger.addLogAdapter(object : AndroidLogAdapter(
             PrettyFormatStrategy
                 .newBuilder()
@@ -25,7 +24,10 @@ object ShadowState {
     }
 
     fun bind(lifecycleOwner: LifecycleOwner) {
-        stateManager?.bind(lifecycleOwner)
+        if (ZipStateManager.managers.isEmpty()){
+            throw IllegalStateException("There is no stateManager!You need to add a class that is annotated by @StateManagerProvider to your module! ")
+        }
+        ZipStateManager.bind(lifecycleOwner)
     }
 
     var stateRecord: (Any) -> Unit = {
@@ -34,6 +36,9 @@ object ShadowState {
     }
 
     fun injectDispatcher(instance:Any){
-        stateManager?.injectAgent(instance)
+        if (ZipStateManager.managers.isEmpty()){
+            throw IllegalStateException("There is no stateManager!You need to add a class that is annotated by @StateManagerProvider to your module!")
+        }
+        ZipStateManager.injectAgent(instance)
     }
 }

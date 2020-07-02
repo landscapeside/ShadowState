@@ -4,6 +4,7 @@ import com.google.auto.service.AutoService;
 import com.landside.shadowstate_annotation.BindAgent;
 import com.landside.shadowstate_annotation.BindState;
 import com.landside.shadowstate_annotation.InjectAgent;
+import com.landside.shadowstate_annotation.StateManagerProvider;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -28,6 +29,9 @@ public class AnnotationProcess extends AbstractProcessor {
     private Elements elementUtils;
     private Filer filer;
 
+    private String className = "";
+    private String packageName = "";
+
     @Override
     public synchronized void init(ProcessingEnvironment processingEnvironment) {
         super.init(processingEnvironment);
@@ -42,6 +46,7 @@ public class AnnotationProcess extends AbstractProcessor {
         types.add(BindState.class.getCanonicalName());
         types.add(BindAgent.class.getCanonicalName());
         types.add(InjectAgent.class.getCanonicalName());
+        types.add(StateManagerProvider.class.getCanonicalName());
         return types;
     }
 
@@ -55,6 +60,9 @@ public class AnnotationProcess extends AbstractProcessor {
 
     @Override
     public boolean process(Set<? extends TypeElement> set, RoundEnvironment roundEnvironment) {
+        obtainStateManagerInfo(roundEnvironment.getElementsAnnotatedWith(StateManagerProvider.class));
+
+
         Set<? extends Element> tmpBindStates = roundEnvironment.getElementsAnnotatedWith(BindState.class);
         if (bindStates == null || bindStates.isEmpty()) {
             bindStates = tmpBindStates;
@@ -74,8 +82,12 @@ public class AnnotationProcess extends AbstractProcessor {
                     e.printStackTrace();
                 }
             }
+            if (packageName.isEmpty() || className.isEmpty()) {
+                printError("You need to add a class that is annotated by @StateManagerProvider to your module!");
+                return true;
+            }
             StateManagerGenerator managerGenerator = new StateManagerGenerator(
-                    bindStates, bindAgents
+                    packageName, className, bindStates, bindAgents
             );
             try {
                 managerGenerator.generate().writeTo(filer);
@@ -84,6 +96,13 @@ public class AnnotationProcess extends AbstractProcessor {
             }
         }
         return false;
+    }
+
+    private void obtainStateManagerInfo(Set<? extends Element> routers) {
+        for (Element element : routers) {
+            packageName = elementUtils.getPackageOf(element).getQualifiedName().toString();
+            className = element.getSimpleName().toString() + "StateManager";
+        }
     }
 
     private void printError(String message) {

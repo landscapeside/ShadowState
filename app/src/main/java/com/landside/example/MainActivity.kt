@@ -7,19 +7,18 @@ import android.view.View
 import com.landside.shadowstate.ShadowState
 import com.landside.shadowstate_annotation.BindAgent
 import com.landside.shadowstate_annotation.BindState
-import com.landside.submodule.SubActivity
 import kotlinx.android.synthetic.main.activity_main.*
 
 @BindState(MainState::class)
 @BindAgent(MainAgent::class)
 class MainActivity : AppCompatActivity(),MainView {
-  lateinit var presenter:TestPresenter
+  lateinit var presenter:MainPresenter
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_main)
     ShadowState.bind(this)
-    presenter = TestPresenter()
+    presenter = MainPresenter()
   }
 
   override fun setName(name: String){
@@ -31,6 +30,6 @@ class MainActivity : AppCompatActivity(),MainView {
   }
 
   fun toSub(view: View) {
-    startActivity(Intent(this, SubActivity::class.java))
+    startActivity(Intent(this, SecondActivity::class.java))
   }
 }

@@ -51,6 +51,11 @@ dependencies {
     implementation rootProject.ext.rxJava
     implementation rootProject.ext.rxAndroid
 
+    implementation rootProject.ext.autodispose
+    implementation rootProject.ext.autodispose_ktx
+    implementation rootProject.ext.autodispose_android_ktx
+    implementation rootProject.ext.autodispose_archs_ktx
+
     implementation rootProject.ext.logger
     implementation rootProject.ext.gson
 

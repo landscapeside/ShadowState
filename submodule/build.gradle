@@ -38,6 +38,11 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 
+    implementation rootProject.ext.autodispose
+    implementation rootProject.ext.autodispose_ktx
+    implementation rootProject.ext.autodispose_android_ktx
+    implementation rootProject.ext.autodispose_archs_ktx
+
     implementation project(":shadowstate")
     kapt project(':shadowstate-compiler')
 }

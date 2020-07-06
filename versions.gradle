@@ -11,7 +11,7 @@ ext {
     compileSdkVersion = 29
     buildToolsVersion = "29.0.2"
     SupportVersion = "29.0.0"
-    minSdkVersion = 21
+    minSdkVersion = 26
     targetSdkVersion = 29
 
     multidex = 'com.android.support:multidex:1.0.3'
@@ -21,9 +21,12 @@ ext {
 
     androidxVersion = '1.0.0'
     androidxSupport = 'androidx.appcompat:appcompat:1.1.0'
-    appcompatV7 = "com.android.support:appcompat-v7:${SupportVersion}"
-    supportV4 = "com.android.support:support-v4:${SupportVersion}"
     lifecycleKtx = "androidx.lifecycle:lifecycle-runtime-ktx:2.2.0"
+    constraint = [group: 'androidx.constraintlayout', name: 'constraintlayout', version: '1.1.2']
+    recyclerView = [group: 'androidx.recyclerview', name: 'recyclerview', version: androidxVersion]
+    appcompatV7 = "com.android.support:appcompat-v7:${SupportVersion}"
+    design = 'com.google.android.material:material:1.0.0'
+    supportV4 = "com.android.support:support-v4:${SupportVersion}"
 
     liveData = [group: 'androidx.lifecycle', name: 'lifecycle-livedata', version: '2.0.0']
     liveDataRx = [group: 'androidx.lifecycle', name: 'lifecycle-reactivestreams', version: '2.0.0']
@@ -33,4 +36,11 @@ ext {
 
     logger = 'com.orhanobut:logger:2.2.0'
     gson = "com.google.code.gson:gson:2.6.2"
+
+    autodispose = [group: 'com.uber.autodispose', name: 'autodispose-android', version: '1.1.0']
+    autodispose_ktx = [group: 'com.uber.autodispose', name: 'autodispose-ktx', version: '1.1.0']
+    autodispose_android_ktx =
+            [group: 'com.uber.autodispose', name: 'autodispose-android-ktx', version: '1.1.0']
+    autodispose_archs_ktx =
+            [group: 'com.uber.autodispose', name: 'autodispose-android-archcomponents-ktx', version: '1.1.0']
 }

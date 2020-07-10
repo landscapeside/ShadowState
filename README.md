@@ -99,6 +99,12 @@ class TestApp : Application() {
 }
 ```
 
+* 打开检查器
+
+```kotlin
+  ShadowState.openWatcher()
+```
+
 * 混淆配置
 
 ```

@@ -28,6 +28,7 @@ abstract class StateAgent<STATE, VIEW> {
         fun onDestroy(@NotNull owner: LifecycleOwner) {
             lifecycleEvents.onNext(Lifecycle.Event.ON_DESTROY)
             stateObservers.remove(this)
+            ShadowState.removePage(view!!)
         }
 
         override fun lifecycle(): Observable<Lifecycle.Event> {
@@ -55,6 +56,7 @@ abstract class StateAgent<STATE, VIEW> {
         override fun onChanged(t: STATE) {
             t?.let {
                 ShadowState.stateRecord(t)
+                ShadowState.watchRecord(t)
             }
         }
 
@@ -74,6 +76,10 @@ abstract class StateAgent<STATE, VIEW> {
                         Logger.e(it, "")
                     }
                 )
+        }
+
+        fun setStateFromJson(json: String, cls: Class<*>) {
+            liveData.value = JSONS.parseObject(json, cls)
         }
     }
 

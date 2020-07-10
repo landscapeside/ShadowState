@@ -10,5 +10,6 @@ import kotlin.reflect.KClass;
 @Retention(RetentionPolicy.CLASS)
 @Target(ElementType.TYPE)
 public @interface BindState {
-    Class value();
+    Class state();
+    Class agent();
 }

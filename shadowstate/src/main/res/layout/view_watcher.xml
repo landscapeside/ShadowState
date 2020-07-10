@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="300dp"
+    tools:context=".watch.WatcherActivity"
+    android:orientation="vertical"
+    android:background="@drawable/floating_console_bg_bottom"
+    >
+
+  <RelativeLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:padding="10dp">
+
+    <ImageView
+        android:id="@+id/btn_back"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@android:drawable/ic_menu_revert"/>
+
+    <ImageView
+        android:id="@+id/btn_save"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:src="@android:drawable/ic_menu_save"/>
+
+    <TextView
+        android:id="@+id/tv_state_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_centerVertical="true"
+        android:layout_toRightOf="@id/btn_back"
+        android:layout_toLeftOf="@id/btn_save"
+        android:text="状态名"/>
+  </RelativeLayout>
+
+  <TextView
+      android:id="@+id/tv_current_path"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_margin="10dp"
+      android:text="当前路径:"/>
+
+  <androidx.recyclerview.widget.RecyclerView
+      android:id="@+id/state_members"
+      android:layout_width="match_parent"
+      android:layout_height="0dp"
+      android:layout_weight="1"/>
+
+  <Button
+      android:id="@+id/btn_add_new_item"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_margin="10dp"
+      android:background="@android:color/holo_blue_dark"
+      android:textColor="@android:color/white"
+      android:text="添加新项"
+      android:visibility="gone"/>
+</LinearLayout>

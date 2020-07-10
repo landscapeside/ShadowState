@@ -1,33 +1,31 @@
 package com.landside.submodule
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
 import com.landside.shadowstate.ShadowState
-import com.landside.shadowstate_annotation.BindAgent
 import com.landside.shadowstate_annotation.BindState
 import com.landside.shadowstate_annotation.InjectAgent
-import kotlinx.android.synthetic.main.activity_sub.*
+import kotlinx.android.synthetic.main.activity_sub.tv_name
 
-@BindState(SubState::class)
-@BindAgent(SubStateAgent::class)
+@BindState(state = SubState::class, agent = SubStateAgent::class)
 class SubActivity : AppCompatActivity() {
 
-    @InjectAgent
-    lateinit var agent: SubStateAgent
+  @InjectAgent
+  lateinit var agent: SubStateAgent
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_sub)
-        ShadowState.bind(this)
-        ShadowState.injectDispatcher(this)
-    }
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    setContentView(R.layout.activity_sub)
+    ShadowState.bind(this)
+    ShadowState.injectDispatcher(this)
+  }
 
-    fun setName(name:String){
-        tv_name.text = name
-    }
+  fun setName(name: String) {
+    tv_name.text = name
+  }
 
-    fun changeName(view: View){
-        agent.setState { it.copy(subName = it.subName+"++") }
-    }
+  fun changeName(view: View) {
+    agent.setState { it.copy(subName = it.subName + "++") }
+  }
 }

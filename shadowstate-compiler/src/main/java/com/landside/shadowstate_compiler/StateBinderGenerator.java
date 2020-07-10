@@ -25,7 +25,7 @@ public class StateBinderGenerator {
   public JavaFile generate() throws Exception {
     TypeMirror stateCls = null;
     try {
-      mClassElement.getAnnotation(BindState.class).value();
+      mClassElement.getAnnotation(BindState.class).state();
     } catch (MirroredTypeException e) {
       stateCls = e.getTypeMirror();
     }

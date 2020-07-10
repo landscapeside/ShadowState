@@ -43,4 +43,6 @@ ext {
             [group: 'com.uber.autodispose', name: 'autodispose-android-ktx', version: '1.1.0']
     autodispose_archs_ktx =
             [group: 'com.uber.autodispose', name: 'autodispose-android-archcomponents-ktx', version: '1.1.0']
+
+    enhancedFloaty = 'com.github.hyb1996:EnhancedFloaty:0.31'
 }

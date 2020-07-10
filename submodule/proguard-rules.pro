@@ -22,7 +22,6 @@
 
 -keep class com.landside.shadowstate.** { *; }
 -keep interface com.landside.shadowstate.** { *; }
--keep @com.landside.shadowstate_annotation.BindAgent class * {*;}
 -keep @com.landside.shadowstate_annotation.BindState class * {*;}
 -keep @com.landside.shadowstate_annotation.InjectAgent class * {*;}
 -keep @com.landside.shadowstate_annotation.StateManagerProvider class * {*;}

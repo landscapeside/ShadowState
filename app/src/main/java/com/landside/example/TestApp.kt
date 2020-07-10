@@ -18,7 +18,9 @@ class TestApp : Application() {
         super.onCreate()
         ZipStateManager.zip(MainStateManager(),SubStateManager())
         ShadowState.init(
-            BuildConfig.DEBUG
+            applicationContext,
+            BuildConfig.DEBUG,
+            true
         )
     }
 }

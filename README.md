@@ -48,8 +48,7 @@ class TestAgent : StateAgent<TestState, MainActivity>() {
 * 注册状态类和代理
 
 ```kotlin
-@BindState(TestState::class)
-@BindAgent(TestAgent::class)
+@BindState(state = TestState::class,agent = TestAgent::class)
 class MainActivity : AppCompatActivity() {
   // 注入代理
   @InjectAgent
@@ -92,7 +91,9 @@ class TestApp : Application() {
         super.onCreate()
         ZipStateManager.zip(MainStateManager())
         ShadowState.init(
-            BuildConfig.DEBUG
+            applicationContext,
+            BuildConfig.DEBUG,
+            true
         )
     }
 }
@@ -103,7 +104,6 @@ class TestApp : Application() {
 ```
 -keep class com.landside.shadowstate.** { *; }
 -keep interface com.landside.shadowstate.** { *; }
--keep @com.landside.shadowstate_annotation.BindAgent class * {*;}
 -keep @com.landside.shadowstate_annotation.BindState class * {*;}
 -keep @com.landside.shadowstate_annotation.InjectAgent class * {*;}
 -keep @com.landside.shadowstate_annotation.StateManagerProvider class * {*;}

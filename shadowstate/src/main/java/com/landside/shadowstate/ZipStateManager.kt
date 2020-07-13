@@ -10,6 +10,17 @@ object ZipStateManager : StateManager {
     this.managers.addAll(managers)
   }
 
+  override fun getStateWrapInfo(lifecycleOwner: LifecycleOwner?): StateWrapInfo? {
+    var stateWrapInfo: StateWrapInfo? = null
+    managers.forEach {
+      if (it.getStateWrapInfo(lifecycleOwner) != null) {
+        stateWrapInfo = it.getStateWrapInfo(lifecycleOwner)
+        return@forEach
+      }
+    }
+    return stateWrapInfo
+  }
+
   override fun bind(lifecycleOwner: LifecycleOwner?) {
     managers.forEach {
       it.bind(lifecycleOwner)

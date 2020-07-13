@@ -62,8 +62,9 @@ public class StateBinderGenerator {
             ClassName.get((TypeElement) mClassElement))
         .build();
     String clsName = stateCls.toString().substring(stateCls.toString().lastIndexOf(".") + 1);
+    clsName = ClassName.get((TypeElement) mClassElement).simpleName();
     TypeSpec generateClass = TypeSpec
-        .classBuilder(clsName + "Binder")
+        .classBuilder(clsName + "StateBinder")
         .addModifiers(PUBLIC, FINAL)
         .addSuperinterface(TypeClass.StateBinder)
         .addMethod(observe)

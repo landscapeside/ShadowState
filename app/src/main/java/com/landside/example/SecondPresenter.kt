@@ -10,10 +10,10 @@ class SecondPresenter {
     }
 
     @InjectAgent
-    lateinit var agent: SecondAgent
+    lateinit var agent: CloneMainAgent
 
 
     fun changeName(){
-        agent.setState { it.copy(name = it.name+"++") }
+        agent.setState { it.copy(name = it.name+"222222") }
     }
 }

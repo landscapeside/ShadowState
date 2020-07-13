@@ -43,32 +43,10 @@ public class StateManagerGenerator {
     TypeName stateMapType = ParameterizedTypeName.get(
         ClassName.get(Map.class),
         classWithWildcard,
-        classWithWildcard);
+        TypeClass.StateWrapInfo);
 
     FieldSpec stateMapParam = FieldSpec
-        .builder(stateMapType, "stateMap")
-        .initializer(CodeBlock.builder().add("new $T<>()", ClassName.get(HashMap.class)).build())
-        .build();
-
-    TypeName dispatcherMapType = ParameterizedTypeName.get(
-        ClassName.get(Map.class),
-        classWithWildcard,
-        TypeClass.StateAgent
-    );
-
-    FieldSpec dispatcherMapParam = FieldSpec
-        .builder(dispatcherMapType, "stateAgentMap")
-        .initializer(CodeBlock.builder().add("new $T<>()", ClassName.get(HashMap.class)).build())
-        .build();
-
-    TypeName binderMapType = ParameterizedTypeName.get(
-        ClassName.get(Map.class),
-        classWithWildcard,
-        TypeClass.StateBinder
-    );
-
-    FieldSpec binderMapParam = FieldSpec
-        .builder(binderMapType, "stateBinderMap")
+        .builder(stateMapType, "stateInfoMap")
         .initializer(CodeBlock.builder().add("new $T<>()", ClassName.get(HashMap.class)).build())
         .build();
 
@@ -82,27 +60,23 @@ public class StateManagerGenerator {
       } catch (MirroredTypeException e) {
         stateCls = e.getTypeMirror();
       }
-      constructorBuilder.addStatement(
-          "stateMap.put($T.class,$T.class)",
-          ClassName.get((TypeElement) state),
-          ClassName.get(stateCls));
       TypeMirror agentCls = null;
       try {
         state.getAnnotation(BindState.class).agent();
       } catch (MirroredTypeException e) {
         agentCls = e.getTypeMirror();
       }
-      constructorBuilder.addStatement(
-          "stateAgentMap.put($T.class,new $T())",
-          ClassName.get(stateCls),
-          ClassName.get(agentCls));
       String clsName = stateCls.toString().substring(stateCls.toString().lastIndexOf(".") + 1);
+      clsName = ClassName.get((TypeElement) state).simpleName();
       constructorBuilder.addStatement(
-          "stateBinderMap.put($T.class,new $T())",
+          "stateInfoMap.put($T.class,new $T($T.class,new $T(),new $T()))",
+          ClassName.get((TypeElement) state),
+          TypeClass.StateWrapInfo,
           ClassName.get(stateCls),
+          ClassName.get(agentCls),
           ClassName.get(
               ClassName.get((TypeElement) state).packageName(),
-              clsName + "Binder"
+              clsName + "StateBinder"
           )
       );
     }
@@ -111,11 +85,11 @@ public class StateManagerGenerator {
         .addModifiers(Modifier.PUBLIC)
         .addAnnotation(AnnotationSpec.builder(Override.class).build())
         .addParameter(TypeClass.LifecycleOwner, "lifecycleOwner")
-        .addStatement("if (getStateClass(lifecycleOwner) == null) {\n" +
+        .addStatement("if (getStateWrapInfo(lifecycleOwner) == null) {\n" +
             "  return;\n" +
             "}")
         .addStatement(
-            "stateBinderMap.get(getStateClass(lifecycleOwner)).observe(lifecycleOwner, getStateAgent(lifecycleOwner))")
+            "getStateWrapInfo(lifecycleOwner).getBinder().observe(lifecycleOwner, getStateAgent(lifecycleOwner))")
         .build();
 
     MethodSpec injectDispatcher = MethodSpec.methodBuilder("injectAgent")
@@ -125,16 +99,27 @@ public class StateManagerGenerator {
         .addStatement("$T<Class<?>> agentClasses = $T.INSTANCE.getAgents(instance)",
             ClassName.get(List.class), TypeClass.AgentInjection)
         .addStatement("for (Class<?> cls : agentClasses) {\n" +
-            " for (Map.Entry<Class<?>, StateAgent> entry :\n" +
-            "     stateAgentMap.entrySet()) {\n" +
-            "        if (entry.getValue().getClass() == cls) {\n" +
+            " for (Map.Entry<Class<?>, StateWrapInfo> entry :\n" +
+            "     stateInfoMap.entrySet()) {\n" +
+            "        if (entry.getValue().getAgent().getClass() == cls) {\n" +
             "            $T.INSTANCE.inject(\n" +
             "             instance,\n" +
-            "             entry.getValue()\n" +
+            "             entry.getValue().getAgent()\n" +
             "           );\n" +
             "        }\n" +
             "     }\n" +
             " }", TypeClass.AgentInjection)
+        .build();
+
+    MethodSpec getStateWrapInfo = MethodSpec.methodBuilder("getStateWrapInfo")
+        .addModifiers(Modifier.PUBLIC)
+        .addAnnotation(AnnotationSpec.builder(Override.class).build())
+        .returns(TypeClass.StateWrapInfo)
+        .addParameter(TypeClass.LifecycleOwner, "lifecycleOwner")
+        .addStatement("if (stateInfoMap.get(lifecycleOwner.getClass()) == null) {\n" +
+            "  return null;\n" +
+            "}")
+        .addStatement("return stateInfoMap.get(lifecycleOwner.getClass())")
         .build();
 
     MethodSpec getStateAgent = MethodSpec.methodBuilder("getStateAgent")
@@ -142,10 +127,10 @@ public class StateManagerGenerator {
         .addAnnotation(AnnotationSpec.builder(Override.class).build())
         .returns(TypeClass.StateAgent)
         .addParameter(TypeClass.LifecycleOwner, "lifecycleOwner")
-        .addStatement("if (getStateClass(lifecycleOwner) == null) {\n" +
+        .addStatement("if (getStateWrapInfo(lifecycleOwner) == null) {\n" +
             "  return null;\n" +
             "}")
-        .addStatement("return stateAgentMap.get(getStateClass(lifecycleOwner))")
+        .addStatement("return getStateWrapInfo(lifecycleOwner).getAgent()")
         .build();
 
     MethodSpec getStateClass = MethodSpec.methodBuilder("getStateClass")
@@ -153,10 +138,10 @@ public class StateManagerGenerator {
         .addAnnotation(AnnotationSpec.builder(Override.class).build())
         .returns(ClassName.get(Class.class))
         .addParameter(TypeClass.LifecycleOwner, "lifecycleOwner")
-        .addStatement("if (stateMap.get(lifecycleOwner.getClass()) == null) {\n" +
+        .addStatement("if (getStateWrapInfo(lifecycleOwner) == null) {\n" +
             "  return null;\n" +
             "}")
-        .addStatement("return stateMap.get(lifecycleOwner.getClass())")
+        .addStatement("return getStateWrapInfo(lifecycleOwner).getStateCls()")
         .build();
 
     TypeSpec generateClass = TypeSpec.classBuilder(className)
@@ -165,11 +150,10 @@ public class StateManagerGenerator {
         .addMethod(constructorBuilder.build())
         .addMethod(bind)
         .addMethod(injectDispatcher)
+        .addMethod(getStateWrapInfo)
         .addMethod(getStateAgent)
         .addMethod(getStateClass)
         .addField(stateMapParam)
-        .addField(dispatcherMapParam)
-        .addField(binderMapParam)
         .build();
     return JavaFile.builder(packageName, generateClass)
         .build();

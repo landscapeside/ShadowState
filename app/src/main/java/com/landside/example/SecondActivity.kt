@@ -7,8 +7,8 @@ import com.landside.shadowstate.ShadowState
 import com.landside.shadowstate_annotation.BindState
 import kotlinx.android.synthetic.main.activity_second.tv_name
 
-@BindState(state = SecondState::class, agent = SecondAgent::class)
-class SecondActivity : AppCompatActivity() {
+@BindState(state = MainState::class, agent = CloneMainAgent::class)
+class SecondActivity : AppCompatActivity(),MainView {
   lateinit var presenter: SecondPresenter
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -20,8 +20,12 @@ class SecondActivity : AppCompatActivity() {
     }
   }
 
-  fun setName(name: String) {
+  override fun setName(name: String) {
     tv_name.text = name
+  }
+
+  override fun setListContents(list: List<String>) {
+
   }
 
   fun openWatcher(view: View){

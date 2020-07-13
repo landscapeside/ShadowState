@@ -11,6 +11,8 @@ public class TypeClass {
       ClassName.get("com.landside.shadowstate", "StateAgent");
   public static final ClassName StateObserver =
       ClassName.get("com.landside.shadowstate.StateAgent", "StateObserver");
+  public static final ClassName StateWrapInfo =
+      ClassName.get("com.landside.shadowstate", "StateWrapInfo");
   public static final ClassName AgentInjection =
       ClassName.get("com.landside.shadowstate", "AgentInjection");
   public static final ClassName MutableLiveData =

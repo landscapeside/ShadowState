@@ -62,6 +62,12 @@ class MainActivity : AppCompatActivity() {
     setName(agent.state.name)
   }
   
+  override fun onNewIntent(intent:Intent){
+    setIntent(intent)
+    ShadowState.rebind(this)
+    super.onNewIntent(intent)
+  }
+  
   fun setName(name: String){
     tv_name.text = name
   }

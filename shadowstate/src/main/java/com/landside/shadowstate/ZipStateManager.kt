@@ -27,20 +27,26 @@ object ZipStateManager : StateManager {
     }
   }
 
-  override fun getStateAgent(lifecycleOwner: LifecycleOwner?): StateAgent<*, *>? {
-    var agent: StateAgent<*, *>? = null
+  override fun getAgentClass(lifecycleOwner: LifecycleOwner?): Class<*>? {
+    var agentCls: Class<*>? = null
     managers.forEach {
-      if (it.getStateAgent(lifecycleOwner) != null) {
-        agent = it.getStateAgent(lifecycleOwner)
+      if (it.getAgentClass(lifecycleOwner) != null) {
+        agentCls = it.getAgentClass(lifecycleOwner)
         return@forEach
       }
     }
-    return agent
+    return agentCls
   }
 
-  override fun injectAgent(instance: Any?) {
+  override fun injectAgent(instance: Any?,owner: LifecycleOwner?) {
     managers.forEach {
-      it.injectAgent(instance)
+      it.injectAgent(instance,owner)
+    }
+  }
+
+  override fun rebind(lifecycleOwner: LifecycleOwner?) {
+    managers.forEach {
+      it.rebind(lifecycleOwner)
     }
   }
 

@@ -25,7 +25,7 @@ object AgentInjection {
         fields.forEach {
             it.isAccessible = true
             if (it.isAnnotationPresent(InjectAgent::class.java)) {
-                if ((it.genericType as Class<*>).superclass == StateAgent::class.java) {
+                if (StateAgent::class.java.isAssignableFrom((it.genericType as Class<*>))) {
                     result.add(it.genericType as Class<*>)
                 }
             }

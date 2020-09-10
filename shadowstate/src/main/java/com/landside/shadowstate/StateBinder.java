@@ -3,5 +3,7 @@ package com.landside.shadowstate;
 import androidx.lifecycle.LifecycleOwner;
 
 public interface StateBinder {
-    void observe(LifecycleOwner owner, StateAgent dispatcher);
+    StateAgent getAgent(LifecycleOwner owner);
+    void observe(LifecycleOwner owner, Class agentCls);
+    void reset(LifecycleOwner owner, Class agentCls);
 }

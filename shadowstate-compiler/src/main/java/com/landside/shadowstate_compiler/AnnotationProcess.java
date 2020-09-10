@@ -4,8 +4,10 @@ import com.google.auto.service.AutoService;
 import com.landside.shadowstate_annotation.BindState;
 import com.landside.shadowstate_annotation.InjectAgent;
 import com.landside.shadowstate_annotation.StateManagerProvider;
+
 import java.util.LinkedHashSet;
 import java.util.Set;
+
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.Messager;

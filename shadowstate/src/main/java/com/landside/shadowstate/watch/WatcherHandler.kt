@@ -1,10 +1,12 @@
 package com.landside.shadowstate.watch
 
+import android.app.Activity
 import android.app.AlertDialog.Builder
 import android.content.Context
 import android.view.View
 import android.widget.EditText
 import android.widget.TextView
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.JsonArray
@@ -71,7 +73,8 @@ class WatcherHandler(
           val editText = EditText(ShadowState.context)
           editText.setText(oldValue)
           try {
-            Builder(ShadowState.pagesStack.last() as Context).setTitle("修改键值")
+            Builder(if (ShadowState.pagesStack.last() is Activity) ShadowState.pagesStack.last() as Activity else (ShadowState.pagesStack.last() as Fragment).activity!!)
+                .setTitle("修改键值")
                 .setView(editText)
                 .setPositiveButton("修改输入框内容") { _, _ ->
                   if (adapter.data is JsonObject) {

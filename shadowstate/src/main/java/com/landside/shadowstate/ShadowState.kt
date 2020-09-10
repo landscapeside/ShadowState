@@ -1,9 +1,12 @@
 package com.landside.shadowstate
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.view.WindowManager
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
 import com.landside.shadowstate.watch.FloatingPermission
 import com.landside.shadowstate.watch.WatcherFloaty
@@ -18,9 +21,10 @@ import io.reactivex.subjects.PublishSubject
 object ShadowState {
 
   var pagesStack: MutableList<LifecycleOwner> = mutableListOf()
+  var watchStateIdx: Int = 0
   lateinit var context: Context
-  lateinit var floatyWindow:ResizableExpandableFloatyWindow
-  internal val watchObjectPublisher:PublishSubject<String> = PublishSubject.create()
+  lateinit var floatyWindow: ResizableExpandableFloatyWindow
+  internal val watchObjectPublisher: PublishSubject<String> = PublishSubject.create()
 
   fun init(
     context: Context,
@@ -40,7 +44,7 @@ object ShadowState {
         tag: String?
       ): Boolean = loggable
     })
-    floatyWindow = object :ResizableExpandableFloatyWindow(WatcherFloaty()){
+    floatyWindow = object : ResizableExpandableFloatyWindow(WatcherFloaty()) {
       override fun onCreate(
         service: FloatyService?,
         manager: WindowManager?
@@ -70,10 +74,20 @@ object ShadowState {
   fun bind(lifecycleOwner: LifecycleOwner) {
     if (ZipStateManager.managers.isEmpty()) {
       throw IllegalStateException(
-          "There is no stateManager!You need to add a class that is annotated by @StateManagerProvider to your module! "
+          "There is no stateManager!You need to create a class which is annotated by @StateManagerProvider into your module! "
       )
     }
     ZipStateManager.bind(lifecycleOwner)
+    pagesStack.add(lifecycleOwner)
+  }
+
+  fun rebind(lifecycleOwner: LifecycleOwner) {
+    if (ZipStateManager.managers.isEmpty()) {
+      throw IllegalStateException(
+          "There is no stateManager!You need to add a class that is annotated by @StateManagerProvider to your module! "
+      )
+    }
+    ZipStateManager.rebind(lifecycleOwner)
     pagesStack.add(lifecycleOwner)
   }
 
@@ -86,17 +100,20 @@ object ShadowState {
     Logger.json(JSONS.parseJson(it))
   }
 
-  val watchRecord:(Any) -> Unit = {
-    watchObjectPublisher.onNext(JSONS.parseJson(it)?:"")
+  val watchRecord: (Any) -> Unit = {
+    watchObjectPublisher.onNext(JSONS.parseJson(it) ?: "")
   }
 
-  fun injectDispatcher(instance: Any) {
+  fun injectDispatcher(
+    instance: Any,
+    owner: LifecycleOwner
+  ) {
     if (ZipStateManager.managers.isEmpty()) {
       throw IllegalStateException(
           "There is no stateManager!You need to add a class that is annotated by @StateManagerProvider to your module!"
       )
     }
-    ZipStateManager.injectAgent(instance)
+    ZipStateManager.injectAgent(instance, owner)
   }
 
   fun openWatcher() {
@@ -106,13 +123,30 @@ object ShadowState {
           .show()
       return
     }
-    FloatyService.addWindow(floatyWindow)
+    if (pagesStack.isEmpty()) {
+      Toast.makeText(context, "状态队列为空", Toast.LENGTH_LONG)
+          .show()
+      return
+    }
+    val stack = pagesStack.reversed()
+        .map { it.javaClass.simpleName+"  当前状态："+it.lifecycle.currentState }
+        .toTypedArray()
+    val dialog = AlertDialog.Builder(
+        if (pagesStack.last() is Activity) pagesStack.last() as Activity else (pagesStack.last() as Fragment).activity!!
+    )
+        .setTitle("")
+        .setItems(stack) { _, selected ->
+          watchStateIdx = selected
+          FloatyService.addWindow(floatyWindow)
+        }
+        .create()
+    dialog.show()
   }
 
   fun getCurrentStateName(): String {
     try {
-      ZipStateManager.getStateAgent(pagesStack.last())
-          ?.stateObservers?.last()
+      ZipStateManager.getStateWrapInfo(pagesStack.reversed()[watchStateIdx])
+          ?.binder?.getAgent(pagesStack.reversed()[watchStateIdx])
           ?.liveData?.value?.apply {
         return this.javaClass.simpleName
       }
@@ -124,8 +158,8 @@ object ShadowState {
 
   fun getCurrentStateJsonString(): String {
     try {
-      ZipStateManager.getStateAgent(pagesStack.last())
-          ?.stateObservers?.last()
+      ZipStateManager.getStateWrapInfo(pagesStack.reversed()[watchStateIdx])
+          ?.binder?.getAgent(pagesStack.reversed()[watchStateIdx])
           ?.liveData?.value?.apply {
         return JSONS.parseJson(this) ?: ""
       }
@@ -137,9 +171,9 @@ object ShadowState {
 
   fun reloadState(json: String) {
     try {
-      val observer = ZipStateManager.getStateAgent(pagesStack.last())
-          ?.stateObservers?.last()
-      val stateClass = ZipStateManager.getStateClass(pagesStack.last())
+      val observer = ZipStateManager.getStateWrapInfo(pagesStack.reversed()[watchStateIdx])
+          ?.binder?.getAgent(pagesStack.reversed()[watchStateIdx])
+      val stateClass = ZipStateManager.getStateClass(pagesStack.reversed()[watchStateIdx])
       observer?.setStateFromJson(
           json,
           stateClass ?: throw java.lang.IllegalStateException("")

@@ -9,10 +9,8 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.landside.shadowstate.R
-import kotlinx.android.synthetic.main.item_array_state_watcher.view.iv_array_item_del
-import kotlinx.android.synthetic.main.item_array_state_watcher.view.tv_array_value
-import kotlinx.android.synthetic.main.item_object_state_watcher.view.tv_name
-import kotlinx.android.synthetic.main.item_object_state_watcher.view.tv_value
+import kotlinx.android.synthetic.main.item_array_state_watcher.view.*
+import kotlinx.android.synthetic.main.item_object_state_watcher.view.*
 
 class WatcherAdapter(
   val context: Context,

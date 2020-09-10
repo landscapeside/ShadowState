@@ -4,8 +4,9 @@ import androidx.lifecycle.LifecycleOwner;
 
 public interface StateManager {
     void bind(LifecycleOwner lifecycleOwner);
-    void injectAgent(Object instance);
+    void rebind(LifecycleOwner lifecycleOwner);
+    void injectAgent(Object instance, LifecycleOwner lifecycleOwner);
     StateWrapInfo getStateWrapInfo(LifecycleOwner lifecycleOwner);
-    StateAgent getStateAgent(LifecycleOwner lifecycleOwner);
+    Class getAgentClass(LifecycleOwner lifecycleOwner);
     Class getStateClass(LifecycleOwner lifecycleOwner);
 }

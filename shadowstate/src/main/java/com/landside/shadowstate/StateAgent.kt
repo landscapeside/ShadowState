@@ -18,8 +18,9 @@ import com.uber.autodispose.lifecycle.LifecycleScopeProvider
 import io.reactivex.Observable
 import io.reactivex.subjects.BehaviorSubject
 import org.jetbrains.annotations.NotNull
+import java.lang.reflect.Type
 
-abstract class StateAgent<STATE, VIEW> : Observer<STATE>, LifecycleScopeProvider<Event>,
+abstract class StateAgent<STATE:Any, VIEW> : Observer<STATE>, LifecycleScopeProvider<Event>,
     LifecycleObserver {
 
   val liveData: MutableLiveData<STATE> = MutableLiveData()
@@ -64,11 +65,12 @@ abstract class StateAgent<STATE, VIEW> : Observer<STATE>, LifecycleScopeProvider
   }
 
   fun setStateFromJson(
-    json: String,
-    cls: Class<*>
+    json: String
   ) {
-    liveData.value = JSONS.parseObject(json, cls)
+    liveData.value = JSONS.parseObject(json, stateType())
   }
+
+  open fun stateType():Type = liveData.value!!.javaClass
 
   fun init() {
     conf()

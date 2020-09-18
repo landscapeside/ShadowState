@@ -129,7 +129,7 @@ object ShadowState {
       return
     }
     val stack = pagesStack.reversed()
-        .map { it.javaClass.simpleName+"  当前状态："+it.lifecycle.currentState }
+        .map { it.javaClass.simpleName + "  当前状态：" + it.lifecycle.currentState }
         .toTypedArray()
     val dialog = AlertDialog.Builder(
         if (pagesStack.last() is Activity) pagesStack.last() as Activity else (pagesStack.last() as Fragment).activity!!
@@ -173,10 +173,8 @@ object ShadowState {
     try {
       val observer = ZipStateManager.getStateWrapInfo(pagesStack.reversed()[watchStateIdx])
           ?.binder?.getAgent(pagesStack.reversed()[watchStateIdx])
-      val stateClass = ZipStateManager.getStateClass(pagesStack.reversed()[watchStateIdx])
       observer?.setStateFromJson(
-          json,
-          stateClass ?: throw java.lang.IllegalStateException("")
+          json
       )
     } catch (e: Exception) {
     }

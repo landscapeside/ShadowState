@@ -18,7 +18,7 @@ class SubActivity : AppCompatActivity() {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_sub)
     ShadowState.bind(this)
-    ShadowState.injectDispatcher(this)
+    ShadowState.injectDispatcher(this,this)
   }
 
   fun setName(name: String) {

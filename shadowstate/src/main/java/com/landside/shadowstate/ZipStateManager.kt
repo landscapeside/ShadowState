@@ -10,32 +10,21 @@ object ZipStateManager : StateManager {
     this.managers.addAll(managers)
   }
 
-  override fun getStateWrapInfo(lifecycleOwner: LifecycleOwner?): StateWrapInfo? {
-    var stateWrapInfo: StateWrapInfo? = null
+  override fun getBinder(lifecycleOwner: LifecycleOwner?): StateBinder? {
+    var stateBinder: StateBinder? = null
     managers.forEach {
-      if (it.getStateWrapInfo(lifecycleOwner) != null) {
-        stateWrapInfo = it.getStateWrapInfo(lifecycleOwner)
+      if (it.getBinder(lifecycleOwner) != null) {
+        stateBinder = it.getBinder(lifecycleOwner)
         return@forEach
       }
     }
-    return stateWrapInfo
+    return stateBinder
   }
 
   override fun bind(lifecycleOwner: LifecycleOwner?) {
     managers.forEach {
       it.bind(lifecycleOwner)
     }
-  }
-
-  override fun getAgentClass(lifecycleOwner: LifecycleOwner?): Class<*>? {
-    var agentCls: Class<*>? = null
-    managers.forEach {
-      if (it.getAgentClass(lifecycleOwner) != null) {
-        agentCls = it.getAgentClass(lifecycleOwner)
-        return@forEach
-      }
-    }
-    return agentCls
   }
 
   override fun injectAgent(instance: Any?,owner: LifecycleOwner?) {
@@ -50,14 +39,9 @@ object ZipStateManager : StateManager {
     }
   }
 
-  override fun getStateClass(lifecycleOwner: LifecycleOwner?): Class<*>? {
-    var stateClass: Class<*>? = null
+  override fun remove(lifecycleOwner: LifecycleOwner?) {
     managers.forEach {
-      if (it.getStateClass(lifecycleOwner) != null) {
-        stateClass = it.getStateClass(lifecycleOwner)
-        return@forEach
-      }
+      it.remove(lifecycleOwner)
     }
-    return stateClass
   }
 }

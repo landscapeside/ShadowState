@@ -3,11 +3,10 @@ package com.landside.shadowstate_compiler;
 import com.google.auto.service.AutoService;
 import com.landside.shadowstate_annotation.BindState;
 import com.landside.shadowstate_annotation.InjectAgent;
+import com.landside.shadowstate_annotation.ShareState;
 import com.landside.shadowstate_annotation.StateManagerProvider;
-
 import java.util.LinkedHashSet;
 import java.util.Set;
-
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.Messager;
@@ -43,6 +42,7 @@ public class AnnotationProcess extends AbstractProcessor {
   public Set<String> getSupportedAnnotationTypes() {
     Set<String> types = new LinkedHashSet<>();
     types.add(BindState.class.getCanonicalName());
+    types.add(ShareState.class.getCanonicalName());
     types.add(InjectAgent.class.getCanonicalName());
     types.add(StateManagerProvider.class.getCanonicalName());
     return types;
@@ -54,6 +54,7 @@ public class AnnotationProcess extends AbstractProcessor {
   }
 
   Set<? extends Element> bindStates = null;
+  Set<? extends Element> shareStates = null;
 
   @Override
   public boolean process(Set<? extends TypeElement> set, RoundEnvironment roundEnvironment) {
@@ -64,10 +65,25 @@ public class AnnotationProcess extends AbstractProcessor {
     if (bindStates == null || bindStates.isEmpty()) {
       bindStates = tmpBindStates;
     }
+    Set<? extends Element> tmpShareStates =
+        roundEnvironment.getElementsAnnotatedWith(ShareState.class);
+    if (shareStates == null || shareStates.isEmpty()) {
+      shareStates = tmpShareStates;
+    }
     if (roundEnvironment.processingOver()) {
       for (Element bindState : bindStates) {
         StateBinderGenerator stateBinderGenerator = new StateBinderGenerator(
             bindState
+        );
+        try {
+          stateBinderGenerator.generate().writeTo(filer);
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
+      }
+      for (Element shareState : shareStates) {
+        ShareBinderGenerator stateBinderGenerator = new ShareBinderGenerator(
+            shareState
         );
         try {
           stateBinderGenerator.generate().writeTo(filer);
@@ -81,7 +97,7 @@ public class AnnotationProcess extends AbstractProcessor {
         return true;
       }
       StateManagerGenerator managerGenerator = new StateManagerGenerator(
-          packageName, className, bindStates
+          packageName, className, bindStates, shareStates
       );
       try {
         managerGenerator.generate().writeTo(filer);

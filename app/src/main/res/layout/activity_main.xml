@@ -28,25 +28,68 @@
       app:layout_constraintRight_toRightOf="parent"
       />
 
+  <LinearLayout
+      android:id="@+id/ll_share"
+      android:layout_width="0dp"
+      android:layout_height="wrap_content"
+      android:orientation="vertical"
+      app:layout_constraintLeft_toLeftOf="parent"
+      app:layout_constraintRight_toRightOf="parent"
+      app:layout_constraintTop_toBottomOf="@id/tv_list_contents">
+
+    <TextView
+        android:id="@+id/tv_share_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/tv_share_count"
+        android:layout_marginLeft="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/tv_share_item"
+        android:layout_marginLeft="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+  </LinearLayout>
+
   <Button
       android:id="@+id/btn_change"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:text="改变内容"
       android:onClick="changeName"
-      app:layout_constraintTop_toBottomOf="@id/tv_list_contents"
+      app:layout_constraintTop_toBottomOf="@id/ll_share"
       app:layout_constraintLeft_toLeftOf="parent"
       app:layout_constraintRight_toRightOf="parent"/>
 
-  <Button
-      android:id="@+id/btn_to_sub"
+  <LinearLayout
+      android:id="@+id/navigate"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:text="打開子模塊"
-      android:onClick="toSub"
+      android:orientation="horizontal"
       app:layout_constraintTop_toBottomOf="@id/btn_change"
       app:layout_constraintLeft_toLeftOf="parent"
-      app:layout_constraintRight_toRightOf="parent"/>
+      app:layout_constraintRight_toRightOf="parent">
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="打開子模塊"
+        android:onClick="toSub"
+        />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:text="打開viewpager"
+        android:onClick="toViewPager"
+        />
+
+  </LinearLayout>
 
   <Button
       android:id="@+id/btn_open_watcher"
@@ -54,7 +97,7 @@
       android:layout_height="wrap_content"
       android:text="打开检查器"
       android:onClick="openWatcher"
-      app:layout_constraintTop_toBottomOf="@id/btn_to_sub"
+      app:layout_constraintTop_toBottomOf="@id/navigate"
       app:layout_constraintLeft_toLeftOf="parent"
       app:layout_constraintRight_toRightOf="parent"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

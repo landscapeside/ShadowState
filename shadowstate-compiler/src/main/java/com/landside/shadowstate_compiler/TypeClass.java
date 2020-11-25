@@ -7,14 +7,16 @@ public class TypeClass {
       ClassName.get("com.landside.shadowstate", "StateManager");
   public static final ClassName StateBinder =
       ClassName.get("com.landside.shadowstate", "StateBinder");
+  public static final ClassName ShareBinder =
+      ClassName.get("com.landside.shadowstate", "ShareBinder");
   public static final ClassName StateAgent =
       ClassName.get("com.landside.shadowstate", "StateAgent");
-  public static final ClassName StateObserver =
-      ClassName.get("com.landside.shadowstate.StateAgent", "StateObserver");
-  public static final ClassName StateWrapInfo =
-      ClassName.get("com.landside.shadowstate", "StateWrapInfo");
+  public static final ClassName ShadowStateAgent =
+      ClassName.get("com.landside.shadowstate", "ShadowStateAgent");
   public static final ClassName AgentInjection =
       ClassName.get("com.landside.shadowstate", "AgentInjection");
+  public static final ClassName ShadowState =
+      ClassName.get("com.landside.shadowstate", "ShadowState");
   public static final ClassName MutableLiveData =
       ClassName.get("androidx.lifecycle", "MutableLiveData");
   public static final ClassName LifecycleOwner =

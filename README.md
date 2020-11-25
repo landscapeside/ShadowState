@@ -45,20 +45,54 @@ class TestAgent : StateAgent<TestState, MainActivity>() {
 }
 ```
 
+* 创建共享状态类和代理
+
+```kotlin
+data class Share(
+  val shareName: String = "",
+  val shareCount: Int = 0,
+  val item: ShareItem<String> = ShareItem("init")
+) {
+  data class ShareItem<T>(
+    val data: T
+  )
+}
+```
+
+```kotlin
+class MainShareAgent : ShadowStateAgent<Share, ShareView>() {
+
+  override fun conf() {
+    listen({ it.shareName }, { view?.setShareName(it) })
+    listen({ it.shareCount }, { view?.setShareCount(it) })
+    listen({ it.item }, { view?.setShareItem(it) })
+  }
+}
+```
+
 * 注册状态类和代理
 
 ```kotlin
+/*
+* 通过BindState注解绑定页面状态
+* 可选：通过ShareState共享全局状态
+* 
+* */
+
 @BindState(state = TestState::class,agent = TestAgent::class)
+@ShareState(states = [Share::class],agent = [MainShareAgent::class])
 class MainActivity : AppCompatActivity() {
   // 注入代理
   @InjectAgent
   lateinit var agent: TestAgent
+  @InjectAgent
+  lateinit var shareAgent: MainShareAgent
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_main)
     ShadowState.bind(this)
-    ShadowState.injectDispatcher(this)
+    ShadowState.injectDispatcher(this,this)
     setName(agent.state.name)
   }
   
@@ -95,11 +129,11 @@ class TestApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        ZipStateManager.zip(MainStateManager())
         ShadowState.init(
             applicationContext,
-            BuildConfig.DEBUG,
-            true
+            BuildConfig.DEBUG,/*打印日志开关*/
+            true,/*启用状态检查器*/
+            arrayOf(MainStateManager())
         )
     }
 }
@@ -111,12 +145,19 @@ class TestApp : Application() {
   ShadowState.openWatcher()
 ```
 
+* 打开共享检查器
+
+```kotlin
+  ShadowState.openShareWatcher()
+```
+
 * 混淆配置
 
 ```
 -keep class com.landside.shadowstate.** { *; }
 -keep interface com.landside.shadowstate.** { *; }
 -keep @com.landside.shadowstate_annotation.BindState class * {*;}
+-keep @com.landside.shadowstate_annotation.ShareState class * {*;}
 -keep @com.landside.shadowstate_annotation.InjectAgent class * {*;}
 -keep @com.landside.shadowstate_annotation.StateManagerProvider class * {*;}
 -keep class **.**Binder {*;}

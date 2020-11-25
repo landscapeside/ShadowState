@@ -4,11 +4,12 @@ import com.landside.shadowstate_annotation.InjectAgent
 
 object AgentInjection {
 
-    fun inject(instance: Any, agent: StateAgent<*, *>) {
+    fun inject(instance: Any, agent: ShadowStateAgent<*, *>) {
         val fields = instance.javaClass.declaredFields
         fields.forEach {
             it.isAccessible = true
-            if (it.isAnnotationPresent(InjectAgent::class.java)) {
+            if (it.isAnnotationPresent(InjectAgent::class.java)&&
+                (it.genericType as Class<*>) == agent.javaClass) {
                 try {
                     it.set(instance, agent)
                 } catch (e: IllegalAccessException) {
@@ -25,7 +26,7 @@ object AgentInjection {
         fields.forEach {
             it.isAccessible = true
             if (it.isAnnotationPresent(InjectAgent::class.java)) {
-                if (StateAgent::class.java.isAssignableFrom((it.genericType as Class<*>))) {
+                if (ShadowStateAgent::class.java.isAssignableFrom((it.genericType as Class<*>))) {
                     result.add(it.genericType as Class<*>)
                 }
             }

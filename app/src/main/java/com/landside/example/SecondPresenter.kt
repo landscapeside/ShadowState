@@ -2,6 +2,7 @@ package com.landside.example
 
 import androidx.lifecycle.LifecycleOwner
 import com.landside.example.share.MainShareAgent
+import com.landside.example.share.SecondShareAgent
 import com.landside.shadowstate.ShadowState
 import com.landside.shadowstate_annotation.InjectAgent
 
@@ -15,7 +16,7 @@ class SecondPresenter(val owner: LifecycleOwner) {
     lateinit var agent: CloneMainAgent
 
     @InjectAgent
-    lateinit var shareAgent: MainShareAgent
+    lateinit var shareAgent: SecondShareAgent
 
 
     fun changeName(){

@@ -27,6 +27,12 @@ object ZipStateManager : StateManager {
     }
   }
 
+  override fun detach(lifecycleOwner: LifecycleOwner?) {
+    managers.forEach {
+      it.detach(lifecycleOwner)
+    }
+  }
+
   override fun injectAgent(instance: Any?,owner: LifecycleOwner?) {
     managers.forEach {
       it.injectAgent(instance,owner)

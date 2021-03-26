@@ -4,6 +4,7 @@ import androidx.lifecycle.LifecycleOwner
 import com.landside.example.share.MainShareAgent
 import com.landside.shadowstate.ShadowState
 import com.landside.shadowstate_annotation.InjectAgent
+import kotlin.random.Random
 
 class TabPresenter(val owner: LifecycleOwner) {
 
@@ -12,7 +13,9 @@ class TabPresenter(val owner: LifecycleOwner) {
   }
 
   @InjectAgent
-  lateinit var shareAgent: MainShareAgent
+  lateinit var shareAgent: MainTagShareAgent
+  @InjectAgent
+  lateinit var attachAgent:ActivityAttachAgent
 
   fun changeName(){
     shareAgent.setState { it.copy(
@@ -22,6 +25,10 @@ class TabPresenter(val owner: LifecycleOwner) {
             data = "item"+ shareAgent.state.shareCount
         )
     ) }
+    attachAgent.setState { it.copy(
+        name = "${Random(10).nextInt()}"
+    ) }
+
   }
 
 }

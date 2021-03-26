@@ -37,6 +37,7 @@ object ShadowState {
   internal val watchObjectPublisher: PublishSubject<String> = PublishSubject.create()
 
   val shareStates: MutableMap<Type, MutableLiveData<out Any>> = mutableMapOf()
+  val attachStates:MutableMap<LifecycleOwner,MutableLiveData<out Any>> = mutableMapOf()
 
   fun init(
     context: Context,
@@ -100,6 +101,16 @@ object ShadowState {
     return this
   }
 
+  fun <STATE : Any>  setupAttach(
+    instance:LifecycleOwner,
+    state: STATE
+  ): ShadowState{
+    val liveData = MutableLiveData<STATE>()
+    liveData.value = state
+    attachStates[instance] = liveData
+    return this
+  }
+
   fun bind(lifecycleOwner: LifecycleOwner) {
     if (ZipStateManager.managers.isEmpty()) {
       throw IllegalStateException(
@@ -128,6 +139,10 @@ object ShadowState {
   fun removePage(view: Any) {
     pagesStack.remove(view)
     ZipStateManager.remove(view as LifecycleOwner)
+  }
+
+  fun detachFragment(view: Any){
+    ZipStateManager.detach(view as LifecycleOwner)
   }
 
   var stateRecord: (Any) -> Unit = {

@@ -1,5 +1,6 @@
 package com.landside.example.viewpager
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,23 +11,32 @@ import com.landside.example.share.MainShareAgent
 import com.landside.example.share.Share
 import com.landside.example.share.Share.ShareItem
 import com.landside.example.share.ShareView
+import com.landside.example.viewpager.TabContract.AttachActivityView
 import com.landside.shadowstate.ShadowState
+import com.landside.shadowstate_annotation.AttachState
 import com.landside.shadowstate_annotation.InjectAgent
 import com.landside.shadowstate_annotation.ShareState
+import kotlinx.android.synthetic.main.fragment_tab.change_attach
+import kotlinx.android.synthetic.main.fragment_tab.open
+import kotlinx.android.synthetic.main.fragment_tab.tv_attach_name
 import kotlinx.android.synthetic.main.fragment_tab.tv_share_count
 import kotlinx.android.synthetic.main.fragment_tab.tv_share_item
 import kotlinx.android.synthetic.main.fragment_tab.tv_share_name
 
-@ShareState(states = [Share::class],agent = [MainShareAgent::class])
-class TabFragment2:Fragment(),ShareView {
+@ShareState(states = [Share::class],agent = [Tab2ShareAgent::class])
+@AttachState(state = AttachInfo::class,agent = FragmentAttachAgent::class)
+class TabFragment2:Fragment(),TabContract.MainTabView , AttachActivityView {
+
+  lateinit var presenter: TabFragmentPresenter
 
   @InjectAgent
-  lateinit var shareAgent: MainShareAgent
+  lateinit var shareAgent: Tab2ShareAgent
 
   override fun onCreate(savedInstanceState: Bundle?) {
     ShadowState.bind(this)
     ShadowState.injectDispatcher(this,this)
     super.onCreate(savedInstanceState)
+    presenter = TabFragmentPresenter(this)
   }
 
   override fun onCreateView(
@@ -44,6 +54,12 @@ class TabFragment2:Fragment(),ShareView {
     setShareName(shareAgent.state.shareName)
     setShareCount(shareAgent.state.shareCount)
     setShareItem(shareAgent.state.item)
+    open.setOnClickListener {
+      startActivity(Intent(requireContext(), TabActivity::class.java))
+    }
+    change_attach.setOnClickListener {
+      presenter.change()
+    }
   }
 
   override fun setShareName(name: String) {
@@ -56,5 +72,9 @@ class TabFragment2:Fragment(),ShareView {
 
   override fun setShareItem(item: ShareItem<String>) {
     tv_share_item.text = "tab2:${item}"
+  }
+
+  override fun setAttachName(name: String) {
+    tv_attach_name.text = "当前页面附加状态的名字：${name}"
   }
 }

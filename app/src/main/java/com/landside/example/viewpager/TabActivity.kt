@@ -11,18 +11,22 @@ import com.landside.example.share.MainShareAgent
 import com.landside.example.share.Share
 import com.landside.example.share.Share.ShareItem
 import com.landside.example.share.ShareView
+import com.landside.example.viewpager.TabContract.AttachActivityView
 import com.landside.shadowstate.ShadowState
+import com.landside.shadowstate_annotation.AttachState
 import com.landside.shadowstate_annotation.BindState
 import com.landside.shadowstate_annotation.ShareState
 import kotlinx.android.synthetic.main.activity_tab.tab
+import kotlinx.android.synthetic.main.activity_tab.tv_attach_name
 import kotlinx.android.synthetic.main.activity_tab.tv_share_count
 import kotlinx.android.synthetic.main.activity_tab.tv_share_item
 import kotlinx.android.synthetic.main.activity_tab.tv_share_name
 import kotlinx.android.synthetic.main.activity_tab.viewpager
 
 @BindState(state = Tab::class, agent = TabAgent::class)
-@ShareState(states = [Share::class],agent = [MainShareAgent::class])
-class TabActivity : AppCompatActivity(),ShareView {
+@ShareState(states = [Share::class],agent = [MainTagShareAgent::class])
+@AttachState(state = AttachInfo::class,agent = ActivityAttachAgent::class)
+class TabActivity : AppCompatActivity(),TabContract.MainTabView , AttachActivityView {
 
   val fragments = listOf<Fragment>(
       TabFragment1(),
@@ -69,5 +73,9 @@ class TabActivity : AppCompatActivity(),ShareView {
 
   override fun setShareItem(item: ShareItem<String>) {
     tv_share_item.text = "tab activity: $item"
+  }
+
+  override fun setAttachName(name: String) {
+    tv_attach_name.text = "当前页面附加状态的名字：${name}"
   }
 }

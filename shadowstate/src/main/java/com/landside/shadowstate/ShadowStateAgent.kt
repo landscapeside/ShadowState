@@ -1,7 +1,7 @@
 package com.landside.shadowstate
 
 import android.arch.convert.RxJavaConvert
-import android.os.Bundle
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Lifecycle.Event
 import androidx.lifecycle.LifecycleObserver
@@ -21,11 +21,11 @@ import org.jetbrains.annotations.NotNull
 import java.lang.reflect.Type
 
 abstract class ShadowStateAgent<STATE : Any, VIEW> : Observer<STATE>, LifecycleScopeProvider<Event>,
-  LifecycleObserver {
+    LifecycleObserver {
 
   var liveData: MutableLiveData<STATE> = MutableLiveData()
   var view: VIEW? = null
-  lateinit var stateCls:Class<*>
+  lateinit var stateCls: Class<*>
 
   val lifecycleEvents =
     BehaviorSubject.createDefault(Lifecycle.Event.ON_ANY)
@@ -45,7 +45,7 @@ abstract class ShadowStateAgent<STATE : Any, VIEW> : Observer<STATE>, LifecycleS
       Lifecycle.Event.ON_CREATE -> Lifecycle.Event.ON_DESTROY
       Lifecycle.Event.ON_ANY -> Lifecycle.Event.ON_DESTROY
       else -> throw LifecycleEndedException(
-        "Cannot bind to ViewModel lifecycle after onCleared."
+          "Cannot bind to ViewModel lifecycle after onCleared."
       )
     }
   }
@@ -127,16 +127,16 @@ abstract class ShadowStateAgent<STATE : Any, VIEW> : Observer<STATE>, LifecycleS
     executor: (SUB) -> Unit
   ) {
     liveData.toObservable()
-      .subscribeSubState(distinct = distinct, map = mapper)
-      .skip(1)
-      .autoDisposable(this)
-      .subscribe(
-        {
-          executor(it)
-        }, {
+        .subscribeSubState(distinct = distinct, map = mapper)
+        .skip(1)
+        .autoDisposable(this)
+        .subscribe(
+            {
+              executor(it)
+            }, {
           Logger.e(it, "")
         }
-      )
+        )
   }
 
   protected fun <T, SUB> Observable<T>.subscribeSubState(
@@ -146,11 +146,11 @@ abstract class ShadowStateAgent<STATE : Any, VIEW> : Observer<STATE>, LifecycleS
     val observable = this.filter {
       map(it) != null
     }
-      .map {
-        map(it)
-      }
+        .map {
+          map(it)
+        }
     return if (distinct) observable
-      .distinctUntilChanged() else observable
+        .distinctUntilChanged() else observable
   }
 
   protected fun <T> LiveData<T>.toObservable() = RxJavaConvert.toObservable(this)

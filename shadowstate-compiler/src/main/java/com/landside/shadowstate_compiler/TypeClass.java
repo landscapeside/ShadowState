@@ -9,10 +9,14 @@ public class TypeClass {
       ClassName.get("com.landside.shadowstate", "StateBinder");
   public static final ClassName ShareBinder =
       ClassName.get("com.landside.shadowstate", "ShareBinder");
+  public static final ClassName AttachBinder =
+      ClassName.get("com.landside.shadowstate", "AttachBinder");
   public static final ClassName StateAgent =
       ClassName.get("com.landside.shadowstate", "StateAgent");
   public static final ClassName ShadowStateAgent =
       ClassName.get("com.landside.shadowstate", "ShadowStateAgent");
+  public static final ClassName AttachAgent =
+      ClassName.get("com.landside.shadowstate", "AttachAgent");
   public static final ClassName AgentInjection =
       ClassName.get("com.landside.shadowstate", "AgentInjection");
   public static final ClassName ShadowState =
@@ -24,4 +28,6 @@ public class TypeClass {
   public static final ClassName Fragment = ClassName.get("androidx.fragment.app", "Fragment");
   public static final ClassName FragmentActivity =
       ClassName.get("androidx.fragment.app", "FragmentActivity");
+  public static final ClassName AnnotationHelper =
+      ClassName.get("com.landside.shadowstate","AnnotationHelper");
 }

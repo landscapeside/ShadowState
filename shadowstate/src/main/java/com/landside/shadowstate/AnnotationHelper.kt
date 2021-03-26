@@ -18,4 +18,6 @@ object AnnotationHelper {
 //    }
 //    return null
 //  }
+
+  fun isAnnotationPresent(instance: Any,clazz:Class<out Annotation>):Boolean = instance.javaClass.isAnnotationPresent(clazz)
 }

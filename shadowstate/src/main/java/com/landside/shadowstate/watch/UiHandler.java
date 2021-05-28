@@ -8,8 +8,7 @@ import android.widget.Toast;
 /**
  * Created by Stardust on 2017/5/2.
  */
-
-public class UiHandler extends Handler {
+class UiHandler extends Handler {
 
 
     private Context mContext;

@@ -12,7 +12,7 @@ import com.landside.shadowstate.R
 import kotlinx.android.synthetic.main.item_array_state_watcher.view.*
 import kotlinx.android.synthetic.main.item_object_state_watcher.view.*
 
-class WatcherAdapter(
+internal class WatcherAdapter(
   val context: Context,
   var data: JsonElement,
   var arrayName: String = "",

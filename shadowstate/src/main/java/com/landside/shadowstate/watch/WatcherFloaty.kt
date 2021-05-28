@@ -10,7 +10,7 @@ import com.stardust.enhancedfloaty.FloatyService
 import com.stardust.enhancedfloaty.ResizableExpandableFloaty.AbstractResizableExpandableFloaty
 import com.stardust.enhancedfloaty.ResizableExpandableFloatyWindow
 
-class WatcherFloaty : AbstractResizableExpandableFloaty() {
+internal class WatcherFloaty : AbstractResizableExpandableFloaty() {
 
   init {
     setShouldRequestFocusWhenExpand(false)

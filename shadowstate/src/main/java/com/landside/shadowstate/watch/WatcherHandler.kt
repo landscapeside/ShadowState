@@ -18,14 +18,14 @@ import com.landside.shadowstate.R
 import com.landside.shadowstate.ShadowState
 import io.reactivex.disposables.Disposable
 
-class WatcherHandler(
+internal class WatcherHandler(
   val rootView: View
 ) {
-  val uiHandler = UiHandler(ShadowState.context)
+  private val uiHandler = UiHandler(ShadowState.context)
   var currentPath: String = "."
   var wholeData = JSONS.parseJsonObject(ShadowState.getCurrentStateJsonString())
   val visitStack: MutableList<JsonElement?> = mutableListOf()
-  lateinit var adapter: WatcherAdapter
+  private lateinit var adapter: WatcherAdapter
   var tv_current_path: TextView
   lateinit var tv_state_name:TextView
   var btn_add_new_item: View

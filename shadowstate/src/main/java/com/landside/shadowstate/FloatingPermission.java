@@ -1,4 +1,4 @@
-package com.landside.shadowstate.watch;
+package com.landside.shadowstate;
 
 import android.content.Context;
 import android.content.Intent;
@@ -20,7 +20,7 @@ import java.lang.reflect.Method;
  * Created by Stardust on 2018/1/30.
  */
 
-public class FloatingPermission {
+class FloatingPermission {
 
 
     private static final int OP_SYSTEM_ALERT_WINDOW = 24;

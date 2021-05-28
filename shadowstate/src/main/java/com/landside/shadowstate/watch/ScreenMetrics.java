@@ -8,8 +8,7 @@ import android.view.Display;
 /**
  * Created by Stardust on 2017/4/26.
  */
-
-public class ScreenMetrics {
+class ScreenMetrics {
 
     private static int deviceScreenHeight;
     private static int deviceScreenWidth;

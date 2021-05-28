@@ -24,7 +24,7 @@ class WatcherActivity : AppCompatActivity() {
   var currentPath: String = "."
   val wholeData = JSONS.parseJsonObject(ShadowState.getCurrentStateJsonString())
   val visitStack: MutableList<JsonElement?> = mutableListOf()
-  lateinit var adapter: WatcherAdapter
+  private lateinit var adapter: WatcherAdapter
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)

@@ -4,7 +4,7 @@ import android.text.TextUtils
 import com.google.gson.*
 import java.lang.reflect.Type
 
-object JSONS {
+internal object JSONS {
     private var sGson: Gson = GsonBuilder().setDateFormat("yyyy-MM-dd hh:mm:ss").create()
     private val sParser: JsonParser = JsonParser()
 

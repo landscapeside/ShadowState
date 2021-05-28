@@ -11,7 +11,6 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 import com.landside.shadowstate.ShadowState.StateType.PAGE
 import com.landside.shadowstate.ShadowState.StateType.SHARE
-import com.landside.shadowstate.watch.FloatingPermission
 import com.landside.shadowstate.watch.WatcherFloaty
 import com.landside.shadowstate_annotation.BindState
 import com.orhanobut.logger.AndroidLogAdapter
@@ -33,7 +32,7 @@ object ShadowState {
   private var watchStateIdx: Int = 0
   private var type:StateType = PAGE
   lateinit var context: Context
-  lateinit var floatyWindow: ResizableExpandableFloatyWindow
+  private lateinit var floatyWindow: ResizableExpandableFloatyWindow
   internal val watchObjectPublisher: PublishSubject<String> = PublishSubject.create()
 
   val shareStates: MutableMap<Type, MutableLiveData<out Any>> = mutableMapOf()
@@ -206,7 +205,7 @@ object ShadowState {
           .show()
       return
     }
-    val shareStack = shareStates.keys.map { it.typeName }
+    val shareStack = shareStates.keys.map { it.toString() }
         .toTypedArray()
     val dialog = AlertDialog.Builder(
         if (pagesStack.last() is Activity) pagesStack.last() as Activity else (pagesStack.last() as Fragment).activity!!
@@ -232,7 +231,7 @@ object ShadowState {
       } else {
         val shareStack = shareStates.keys
             .toTypedArray()
-        return shareStack[watchStateIdx].typeName
+        return shareStack[watchStateIdx].toString()
       }
     } catch (e: Exception) {
       return ""
@@ -302,7 +301,7 @@ object ShadowState {
     try {
       shareStates.entries.forEach {
         result.add(
-            "name=>${it.key.typeName} state=>${(JSONS.parseJson(it.value.value))}"
+            "name=>${it.key} state=>${(JSONS.parseJson(it.value.value))}"
         )
       }
     } catch (e: Exception) {

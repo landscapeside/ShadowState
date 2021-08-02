@@ -12,11 +12,18 @@ class TabFragmentPresenter(val owner: LifecycleOwner) {
 
   @InjectAgent
   lateinit var attachAgent:FragmentAttachAgent
+  @InjectAgent
+  lateinit var attachAgent2: FragmentAttachAgent2
 
   fun change(){
     attachAgent.setState {
       it.copy(
           name = ('a'..'z').random().toString()
+      )
+    }
+    attachAgent2.setState {
+      it.copy(
+          age = Random.nextInt()
       )
     }
   }

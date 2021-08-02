@@ -9,13 +9,21 @@ class MainPresenter(val owner: LifecycleOwner) {
   init {
     ShadowState.injectDispatcher(this, owner)
   }
+
   @InjectAgent
   lateinit var agent: MainAgent
+
   @InjectAgent
   lateinit var shareAgent: MainShareAgent
 
+  var name: String
+    get() = agent.state.name
+    set(value) {
+      agent.setState { it.copy(name = value) }
+    }
+
   fun changeName() {
-    agent.setState { it.copy(name = it.name + "++") }
+    name += "++"
     shareAgent.setState {
       it.copy(
           shareName = "shareName" + shareAgent.state.shareCount,

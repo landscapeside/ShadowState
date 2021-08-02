@@ -10,6 +10,6 @@ import kotlin.reflect.KClass
     AnnotationTarget.CLASS
 )
 annotation class AttachState(
-    val state: KClass<*>,
-    val agent: KClass<*>
+    val states: Array<KClass<*>>,
+    val agents: Array<KClass<*>>
 )

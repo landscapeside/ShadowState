@@ -23,5 +23,6 @@ class TabContract {
 
     interface AttachActivityView{
         fun setAttachName(name: String)
+        fun setAttachAge(age: Int)
     }
 }

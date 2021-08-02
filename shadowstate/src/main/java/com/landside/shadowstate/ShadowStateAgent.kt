@@ -83,6 +83,7 @@ abstract class ShadowStateAgent<STATE : Any, VIEW> : Observer<STATE>, LifecycleS
   ) {
     this.view = view
     if (view is LifecycleOwner) {
+      liveData.observe(view,this)
       view.lifecycle.addObserver(this)
     }
   }

@@ -36,7 +36,7 @@ object ShadowState {
   internal val watchObjectPublisher: PublishSubject<String> = PublishSubject.create()
 
   val shareStates: MutableMap<Type, MutableLiveData<out Any>> = mutableMapOf()
-  val attachStates:MutableMap<LifecycleOwner,MutableLiveData<out Any>> = mutableMapOf()
+  val attachStates:MutableMap<LifecycleOwner, MutableMap<Type,MutableLiveData<out Any>>> = mutableMapOf()
 
   fun init(
     context: Context,
@@ -102,11 +102,15 @@ object ShadowState {
 
   fun <STATE : Any>  setupAttach(
     instance:LifecycleOwner,
+    stateCls:Class<*>,
     state: STATE
   ): ShadowState{
     val liveData = MutableLiveData<STATE>()
     liveData.value = state
-    attachStates[instance] = liveData
+    if (attachStates[instance] == null) {
+      attachStates[instance] = mutableMapOf()
+    }
+    attachStates[instance]?.set(stateCls, liveData)
     return this
   }
 
@@ -137,6 +141,7 @@ object ShadowState {
 
   fun removePage(view: Any) {
     pagesStack.remove(view)
+    attachStates.remove(view)
     ZipStateManager.remove(view as LifecycleOwner)
   }
 
@@ -309,4 +314,8 @@ object ShadowState {
     }
     return result
   }
+
+  fun toJsonString(o: Any?):String? = JSONS.parseJson(o)
+
+  fun <T> toObjectFromJson(json: String?, type: Type?): T? = JSONS.parseObject(json, type)
 }

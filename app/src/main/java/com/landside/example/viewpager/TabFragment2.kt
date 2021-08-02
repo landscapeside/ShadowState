@@ -18,14 +18,18 @@ import com.landside.shadowstate_annotation.InjectAgent
 import com.landside.shadowstate_annotation.ShareState
 import kotlinx.android.synthetic.main.fragment_tab.change_attach
 import kotlinx.android.synthetic.main.fragment_tab.open
+import kotlinx.android.synthetic.main.fragment_tab.tv_attach_age
 import kotlinx.android.synthetic.main.fragment_tab.tv_attach_name
 import kotlinx.android.synthetic.main.fragment_tab.tv_share_count
 import kotlinx.android.synthetic.main.fragment_tab.tv_share_item
 import kotlinx.android.synthetic.main.fragment_tab.tv_share_name
 
-@ShareState(states = [Share::class],agent = [Tab2ShareAgent::class])
-@AttachState(state = AttachInfo::class,agent = FragmentAttachAgent::class)
-class TabFragment2:Fragment(),TabContract.MainTabView , AttachActivityView {
+@ShareState(states = [Share::class], agent = [Tab2ShareAgent::class])
+@AttachState(
+    states = [AttachInfo::class, AttachInfo2::class],
+    agents = [FragmentAttachAgent::class, FragmentAttachAgent2::class]
+)
+class TabFragment2 : Fragment(), TabContract.MainTabView, AttachActivityView {
 
   lateinit var presenter: TabFragmentPresenter
 
@@ -34,7 +38,7 @@ class TabFragment2:Fragment(),TabContract.MainTabView , AttachActivityView {
 
   override fun onCreate(savedInstanceState: Bundle?) {
     ShadowState.bind(this)
-    ShadowState.injectDispatcher(this,this)
+    ShadowState.injectDispatcher(this, this)
     super.onCreate(savedInstanceState)
     presenter = TabFragmentPresenter(this)
   }
@@ -44,13 +48,13 @@ class TabFragment2:Fragment(),TabContract.MainTabView , AttachActivityView {
     container: ViewGroup?,
     savedInstanceState: Bundle?
   ): View? {
-    return inflater.inflate(R.layout.fragment_tab,container,false)
+    return inflater.inflate(R.layout.fragment_tab, container, false)
   }
 
   override fun onActivityCreated(savedInstanceState: Bundle?) {
     super.onActivityCreated(savedInstanceState)
     ShadowState.bind(this)
-    ShadowState.injectDispatcher(this,this)
+    ShadowState.injectDispatcher(this, this)
     setShareName(shareAgent.state.shareName)
     setShareCount(shareAgent.state.shareCount)
     setShareItem(shareAgent.state.item)
@@ -76,5 +80,9 @@ class TabFragment2:Fragment(),TabContract.MainTabView , AttachActivityView {
 
   override fun setAttachName(name: String) {
     tv_attach_name.text = "当前页面附加状态的名字：${name}"
+  }
+
+  override fun setAttachAge(age: Int) {
+    tv_attach_age.text = "fragment里面的年龄：${age}"
   }
 }

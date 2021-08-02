@@ -3,6 +3,7 @@ package com.landside.shadowstate_compiler;
 import com.landside.shadowstate_annotation.AttachState;
 import com.landside.shadowstate_annotation.BindState;
 import com.squareup.javapoet.AnnotationSpec;
+import com.squareup.javapoet.ArrayTypeName;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
@@ -11,12 +12,16 @@ import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.MirroredTypeException;
+import javax.lang.model.type.MirroredTypesException;
 import javax.lang.model.type.TypeMirror;
 
 import static javax.lang.model.element.Modifier.FINAL;
@@ -30,23 +35,24 @@ public class AttachBinderGenerator {
   }
 
   public JavaFile generate() throws Exception {
-    TypeMirror stateCls = null;
+    List<? extends TypeMirror> stateCls = new ArrayList<>(),agentCls = new ArrayList<>();
     try {
-      mClassElement.getAnnotation(AttachState.class).state();
-    } catch (MirroredTypeException e) {
-      stateCls = e.getTypeMirror();
+      mClassElement.getAnnotation(AttachState.class).states();
+    } catch (MirroredTypesException e) {
+      stateCls = e.getTypeMirrors();
     }
-    TypeMirror agentCls = null;
     try {
-      mClassElement.getAnnotation(AttachState.class).agent();
-    } catch (MirroredTypeException e) {
-      agentCls = e.getTypeMirror();
+      mClassElement.getAnnotation(AttachState.class).agents();
+    } catch (MirroredTypesException e) {
+      agentCls = e.getTypeMirrors();
     }
+    TypeName shadowAgentsType = ArrayTypeName.of(TypeClass.ShadowStateAgent);
+    TypeName classesType = ArrayTypeName.of(ClassName.get(Class.class));
 
     TypeName agentsType = ParameterizedTypeName.get(
         ClassName.get(Map.class),
         TypeClass.LifecycleOwner,
-        TypeClass.ShadowStateAgent);
+        shadowAgentsType);
 
     FieldSpec agents = FieldSpec
         .builder(agentsType, "agents")
@@ -54,16 +60,16 @@ public class AttachBinderGenerator {
         .build();
 
     FieldSpec _stateCls = FieldSpec
-        .builder(ClassName.get(Class.class), "stateCls")
+        .builder(classesType, "stateCls")
         .build();
     FieldSpec _agentCls = FieldSpec
-        .builder(ClassName.get(Class.class), "agentCls")
+        .builder(classesType, "agentCls")
         .build();
 
     MethodSpec constructor = MethodSpec.constructorBuilder()
         .addModifiers(Modifier.PUBLIC)
-        .addParameter(ClassName.get(Class.class), "stateCls")
-        .addParameter(ClassName.get(Class.class), "agentCls")
+        .addParameter(classesType, "stateCls")
+        .addParameter(classesType, "agentCls")
         .addStatement("this.stateCls = stateCls")
         .addStatement("this.agentCls = agentCls")
         .build();
@@ -71,14 +77,14 @@ public class AttachBinderGenerator {
     MethodSpec getStateCls = MethodSpec.methodBuilder("getStateCls")
         .addModifiers(Modifier.PUBLIC)
         .addAnnotation(AnnotationSpec.builder(Override.class).build())
-        .returns(ClassName.get(Class.class))
+        .returns(classesType)
         .addStatement("return stateCls")
         .build();
 
     MethodSpec getAgentCls = MethodSpec.methodBuilder("getAgentCls")
         .addModifiers(Modifier.PUBLIC)
         .addAnnotation(AnnotationSpec.builder(Override.class).build())
-        .returns(ClassName.get(Class.class))
+        .returns(classesType)
         .addStatement("return agentCls")
         .build();
 
@@ -86,7 +92,7 @@ public class AttachBinderGenerator {
         .addModifiers(Modifier.PUBLIC)
         .addAnnotation(AnnotationSpec.builder(Override.class).build())
         .addParameter(TypeClass.LifecycleOwner, "owner")
-        .returns(TypeClass.ShadowStateAgent)
+        .returns(shadowAgentsType)
         .addStatement("return agents.get(owner)")
         .build();
 
@@ -97,53 +103,59 @@ public class AttachBinderGenerator {
         .addStatement("agents.remove(owner)")
         .build();
 
+    TypeName shadowStateAgentList = ParameterizedTypeName.get(
+        ClassName.get(List.class),
+        TypeClass.ShadowStateAgent
+    );
+
     MethodSpec observe = MethodSpec.methodBuilder("observe")
         .addModifiers(Modifier.PUBLIC)
         .addAnnotation(AnnotationSpec.builder(Override.class).build())
         .addParameter(TypeClass.LifecycleOwner, "owner")
         .addStatement("try {\n"
-                + " ShadowStateAgent agent = (ShadowStateAgent) agentCls.newInstance();\n"
-                + " agent.stateCls = stateCls;\n"
-                + " agents.put(owner,agent);\n"
-                + " if (owner instanceof $T) {\n"
-                + "  $T initialState = ($T)(($T)agent).initState((($T) owner).getIntent().getExtras());\n"
-                +"   if (!$T.INSTANCE.getAttachStates().containsKey(owner)) {\n"
-                + "     $T.INSTANCE.setupAttach(owner,initialState);\n"
-                + "  }\n"
-                + "  agent.setLiveData($T.INSTANCE.getAttachStates().get(owner));\n"
-                + "  agent.getLiveData().setValue(initialState);\n"
-                + " } else if (owner instanceof $T) {\n"
-                +"    if ($T.INSTANCE.isAnnotationPresent((($T) owner).getActivity(),\n"
-                + "            $T.class)){\n"
-                + "      agent.setLiveData($T.INSTANCE.getAttachStates().get((($T) owner).getActivity()));\n"
-                + "   }else{\n"
-                + "      throw new IllegalArgumentException(\"need the FragmentActivity which current Fragment attached been annotated by AttachState\");\n"
-                + "   }\n"
-                + " } else {\n"
-                + "  throw new IllegalArgumentException(\"only support FragmentActivity or Fragment\");\n"
-                + " }\n"
-                + " agent.getLiveData().observe(owner, agent);\n"
-                + " agent.bindView(($T) owner);\n"
-                + " agent.init();\n"
-                + "} catch (IllegalAccessException e) {\n"
-                + " e.printStackTrace();\n"
-                + "} catch (InstantiationException e) {\n"
-                + " e.printStackTrace();\n"
-                + "}",
+                + "      $T agentList = new $T();\n"
+                + "      for (int i = 0;i<agentCls.length;i++){\n"
+                + "        ShadowStateAgent agent = (ShadowStateAgent) agentCls[i].newInstance();\n"
+                + "        agent.stateCls = stateCls[i];\n"
+                + "        if (owner instanceof $T) {\n"
+                + "          Map<$T, $T<?>> liveDatas = $T.INSTANCE.getAttachStates().get(owner);\n"
+                + "          if (liveDatas == null || liveDatas.get(stateCls[i]) == null) {\n"
+                + "            ShadowState.INSTANCE.setupAttach(owner,stateCls[i],(($T)agent).initState(((FragmentActivity) owner).getIntent().getExtras()));\n"
+                + "          }\n"
+                + "          agent.setLiveData(ShadowState.INSTANCE.getAttachStates().get(owner).get(stateCls[i]));\n"
+                + "        } else if (owner instanceof $T) {\n"
+                + "          if ($T.INSTANCE.isAnnotationPresent(((Fragment) owner).getActivity(),\n"
+                + "              $T.class)){\n"
+                + "            Map<Type, MutableLiveData<?>> liveDatas = ShadowState.INSTANCE.getAttachStates().get(((Fragment) owner).getActivity());\n"
+                + "            if (liveDatas != null && liveDatas.get(stateCls[i]) != null) {\n"
+                + "              agent.setLiveData(liveDatas.get(stateCls[i]));\n"
+                + "            } else {\n"
+                + "              continue;\n"
+                + "            }\n"
+                + "          }else{\n"
+                + "            throw new IllegalArgumentException(\"need the FragmentActivity which current Fragment attached been annotated by AttachState\");\n"
+                + "          }\n"
+                + "        } else {\n"
+                + "          throw new IllegalArgumentException(\"only support FragmentActivity or Fragment\");\n"
+                + "        }\n"
+                + "        agent.bindView(($T) owner);\n"
+                + "        agent.init();\n"
+                + "        agentList.add(agent);\n"
+                + "      }\n"
+                + "      agents.put(owner,agentList.toArray(new ShadowStateAgent[0]));\n"
+                + "    } catch (IllegalAccessException | InstantiationException e) {\n"
+                + "      e.printStackTrace();\n"
+                + "    }",
+            shadowStateAgentList,
+            ClassName.get(ArrayList.class),
             TypeClass.FragmentActivity,
-            ClassName.get(stateCls),
-            ClassName.get(stateCls),
+            ClassName.get(Type.class),
+            TypeClass.MutableLiveData,
+            TypeClass.ShadowState,
             TypeClass.AttachAgent,
-            TypeClass.FragmentActivity,
-            TypeClass.ShadowState,
-            TypeClass.ShadowState,
-            TypeClass.ShadowState,
             TypeClass.Fragment,
             TypeClass.AnnotationHelper,
-            TypeClass.Fragment,
             ClassName.get(AttachState.class),
-            TypeClass.ShadowState,
-            TypeClass.Fragment,
             ClassName.get((TypeElement) mClassElement))
         .build();
 
@@ -151,16 +163,14 @@ public class AttachBinderGenerator {
         .addModifiers(Modifier.PUBLIC)
         .addAnnotation(AnnotationSpec.builder(Override.class).build())
         .addParameter(TypeClass.LifecycleOwner, "owner")
-        .addStatement("ShadowStateAgent agent = agents.get(owner);\n"
-                + "if (owner instanceof $T) {\n"
-                + "  $T initialState = ($T)(($T)agent).initState((($T) owner).getIntent().getExtras());\n"
-                + "  agent.getLiveData().setValue(initialState);\n"
-                + "}",
+        .addStatement("if (owner instanceof $T) {\n"
+                + "      ShadowStateAgent[] agentList = agents.get(owner);\n"
+                + "      for (int i = 0;i<agentCls.length;i++){\n"
+                + "        agentList[i].getLiveData().setValue((($T)agentList[i]).initState(((FragmentActivity) owner).getIntent().getExtras()));\n"
+                + "      }\n"
+                + "    }",
             TypeClass.FragmentActivity,
-            ClassName.get(stateCls),
-            ClassName.get(stateCls),
-            TypeClass.AttachAgent,
-            TypeClass.FragmentActivity
+            TypeClass.AttachAgent
         )
         .build();
     String clsName = ClassName.get((TypeElement) mClassElement).simpleName();

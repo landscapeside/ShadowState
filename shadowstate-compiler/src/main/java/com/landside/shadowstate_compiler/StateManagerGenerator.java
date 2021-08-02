@@ -110,28 +110,51 @@ public class StateManagerGenerator {
       );
     }
     for (Element state : attachStates) {
-      TypeMirror stateCls = null;
-      try {
-        state.getAnnotation(AttachState.class).state();
-      } catch (MirroredTypeException e) {
-        stateCls = e.getTypeMirror();
-      }
-      TypeMirror agentCls = null;
-      try {
-        state.getAnnotation(AttachState.class).agent();
-      } catch (MirroredTypeException e) {
-        agentCls = e.getTypeMirror();
-      }
       String clsName = ClassName.get((TypeElement) state).simpleName();
-      constructorBuilder.addStatement(
-          "attachBinderMap.put($T.class,new $T($T.class,$T.class))",
+      List<? extends TypeMirror> stateCls = new ArrayList<>(),agentCls = new ArrayList<>();
+      try {
+        state.getAnnotation(AttachState.class).states();
+      } catch (MirroredTypesException e) {
+        stateCls = e.getTypeMirrors();
+      }
+      try {
+        state.getAnnotation(AttachState.class).agents();
+      } catch (MirroredTypesException e) {
+        agentCls = e.getTypeMirrors();
+      }
+      ClassName binder = ClassName.get(
+          ClassName.get((TypeElement) state).packageName(),
+          clsName + "AttachBinder"
+      );
+      CodeBlock.Builder stateBlock = CodeBlock.builder();
+      stateBlock.add("new Class[] { ");
+      List<CodeBlock> codeBlocks = new ArrayList<>();
+      for (int i = 0; i < stateCls.size(); i++) {
+        codeBlocks.add(
+            CodeBlock.builder().add("$T.class", ClassName.get(stateCls.get(i))).build());
+      }
+      stateBlock.add(CodeBlock.join(codeBlocks, ","));
+      stateBlock.add("} ");
+      CodeBlock.Builder agentBlock = CodeBlock.builder();
+      agentBlock.add("new Class[] { ");
+      codeBlocks.clear();
+      for (int i = 0; i < agentCls.size(); i++) {
+        codeBlocks.add(
+            CodeBlock.builder().add("$T.class", ClassName.get(agentCls.get(i))).build());
+      }
+      agentBlock.add(CodeBlock.join(codeBlocks, ","));
+      agentBlock.add("} ");
+      CodeBlock.Builder attachBinderMapBlock = CodeBlock.builder();
+      attachBinderMapBlock.add(
+          "attachBinderMap.put($T.class,new $T(",
           ClassName.get((TypeElement) state),
-          ClassName.get(
-              ClassName.get((TypeElement) state).packageName(),
-              clsName + "AttachBinder"
-          ),
-          ClassName.get(stateCls),
-          ClassName.get(agentCls)
+          binder
+      );
+      attachBinderMapBlock.add(
+          CodeBlock.join(Lists.newArrayList(stateBlock.build(), agentBlock.build()), ","));
+      attachBinderMapBlock.add("))\n");
+      constructorBuilder.addStatement(
+          attachBinderMapBlock.build()
       );
     }
     for (Element state : shareStates) {
@@ -278,11 +301,15 @@ public class StateManagerGenerator {
                 + "        );\n"
                 + "      }\n"
                 + " if (attachBinderMap.get(lifecycleOwner.getClass()) != null){\n"
-                + "        $T.INSTANCE.inject(\n"
-                + "            instance,\n"
-                + "            attachBinderMap.get(lifecycleOwner.getClass()).getAgent(lifecycleOwner)\n"
-                + "        );\n"
-                + "      }\n"
+                + "    ShadowStateAgent[] agents = attachBinderMap.get(lifecycleOwner.getClass()).getAgent(lifecycleOwner);\n"
+                + "    if (agents != null){\n"
+                + "         for (int i = 0; i < agents.length; i++) {\n"
+                + "           if (agents[i].getClass() == cls) {\n"
+                + "             AgentInjection.INSTANCE.inject(instance, agents[i]);\n"
+                + "           }\n"
+                + "         }\n"
+                + "    }\n"
+                + " }\n"
                 + "   for (Map.Entry<Class<?>, ShareBinder> entry : shareBinderMap.entrySet()) {\n"
                 + "     ShareBinder shareBinder = entry.getValue();\n"
                 + "        $T agents = shareBinder.getAgent(lifecycleOwner);\n"
@@ -294,7 +321,6 @@ public class StateManagerGenerator {
                 + "        }\n"
                 + "   }\n"
                 + " }\n",
-            TypeClass.AgentInjection,
             TypeClass.AgentInjection,
             ArrayTypeName.of(TypeClass.ShadowStateAgent))
         .build();

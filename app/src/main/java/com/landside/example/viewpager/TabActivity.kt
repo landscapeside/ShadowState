@@ -17,6 +17,7 @@ import com.landside.shadowstate_annotation.AttachState
 import com.landside.shadowstate_annotation.BindState
 import com.landside.shadowstate_annotation.ShareState
 import kotlinx.android.synthetic.main.activity_tab.tab
+import kotlinx.android.synthetic.main.activity_tab.tv_attach_age
 import kotlinx.android.synthetic.main.activity_tab.tv_attach_name
 import kotlinx.android.synthetic.main.activity_tab.tv_share_count
 import kotlinx.android.synthetic.main.activity_tab.tv_share_item
@@ -25,7 +26,7 @@ import kotlinx.android.synthetic.main.activity_tab.viewpager
 
 @BindState(state = Tab::class, agent = TabAgent::class)
 @ShareState(states = [Share::class],agent = [MainTagShareAgent::class])
-@AttachState(state = AttachInfo::class,agent = ActivityAttachAgent::class)
+@AttachState(states = [AttachInfo::class,AttachInfo2::class],agents = [ActivityAttachAgent::class,ActivityAttachAgent2::class])
 class TabActivity : AppCompatActivity(),TabContract.MainTabView , AttachActivityView {
 
   val fragments = listOf<Fragment>(
@@ -77,5 +78,9 @@ class TabActivity : AppCompatActivity(),TabContract.MainTabView , AttachActivity
 
   override fun setAttachName(name: String) {
     tv_attach_name.text = "当前页面附加状态的名字：${name}"
+  }
+
+  override fun setAttachAge(age: Int) {
+    tv_attach_age.text = "年龄：${age}"
   }
 }

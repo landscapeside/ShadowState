@@ -24,7 +24,7 @@ import kotlinx.android.synthetic.main.fragment_tab.tv_share_item
 import kotlinx.android.synthetic.main.fragment_tab.tv_share_name
 
 @ShareState(states = [Share::class],agent = [Tab1ShareAgent::class])
-@AttachState(state = AttachInfo::class,agent = FragmentAttachAgent::class)
+@AttachState(states = [AttachInfo::class],agents = [FragmentAttachAgent::class])
 class TabFragment1:Fragment(),TabContract.MainTabView ,AttachActivityView{
 
   @InjectAgent
@@ -78,6 +78,10 @@ class TabFragment1:Fragment(),TabContract.MainTabView ,AttachActivityView{
 
   override fun setAttachName(name: String) {
     tv_attach_name.text = "当前页面附加状态的名字：${name}"
+  }
+
+  override fun setAttachAge(age: Int) {
+
   }
 
   override fun onDetach() {

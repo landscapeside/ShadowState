@@ -104,7 +104,6 @@ public class StateBinderGenerator {
                 + " } else {\n"
                 + "  throw new IllegalArgumentException(\"\");\n"
                 + " }\n"
-                + " agent.getLiveData().observe(owner, agent);\n"
                 + " agent.bindView(($T) owner);\n"
                 + " agent.init();\n"
                 + "} catch (IllegalAccessException e) {\n"

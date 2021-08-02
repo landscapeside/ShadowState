@@ -102,7 +102,6 @@ public class ShareBinderGenerator {
                 + "   agent.stateCls = stateCls[i];\n"
                 + "   agent.setLiveData($T.INSTANCE.getShareStates().get(stateCls[i]));\n"
                 + "   agentList.add(agent);\n"
-                + "   agent.getLiveData().observe(owner, agent);\n"
                 + "   agent.bindView(($T) owner);\n"
                 + "   agent.init();\n"
                 + " }\n"

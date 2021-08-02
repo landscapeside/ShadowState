@@ -16,6 +16,8 @@ class TabPresenter(val owner: LifecycleOwner) {
   lateinit var shareAgent: MainTagShareAgent
   @InjectAgent
   lateinit var attachAgent:ActivityAttachAgent
+  @InjectAgent
+  lateinit var attachAgent2: ActivityAttachAgent2
 
   fun changeName(){
     shareAgent.setState { it.copy(
@@ -26,9 +28,11 @@ class TabPresenter(val owner: LifecycleOwner) {
         )
     ) }
     attachAgent.setState { it.copy(
-        name = "${Random(10).nextInt()}"
+        name = ('a'..'z').random().toString()
     ) }
-
+    attachAgent2.setState { it.copy(
+        age = Random.nextInt()
+    ) }
   }
 
 }

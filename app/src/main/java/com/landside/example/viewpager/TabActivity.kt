@@ -5,12 +5,9 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentPagerAdapter
-import com.landside.example.MainPresenter
 import com.landside.example.R
-import com.landside.example.share.MainShareAgent
 import com.landside.example.share.Share
 import com.landside.example.share.Share.ShareItem
-import com.landside.example.share.ShareView
 import com.landside.example.viewpager.TabContract.AttachActivityView
 import com.landside.shadowstate.ShadowState
 import com.landside.shadowstate_annotation.AttachState

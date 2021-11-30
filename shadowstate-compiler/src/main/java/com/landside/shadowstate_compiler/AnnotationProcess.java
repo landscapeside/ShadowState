@@ -4,6 +4,7 @@ import com.google.auto.service.AutoService;
 import com.landside.shadowstate_annotation.AttachState;
 import com.landside.shadowstate_annotation.BindState;
 import com.landside.shadowstate_annotation.InjectAgent;
+import com.landside.shadowstate_annotation.ScopeState;
 import com.landside.shadowstate_annotation.ShareState;
 import com.landside.shadowstate_annotation.StateManagerProvider;
 import java.util.LinkedHashSet;
@@ -45,6 +46,7 @@ public class AnnotationProcess extends AbstractProcessor {
     types.add(BindState.class.getCanonicalName());
     types.add(AttachState.class.getCanonicalName());
     types.add(ShareState.class.getCanonicalName());
+    types.add(ScopeState.class.getCanonicalName());
     types.add(InjectAgent.class.getCanonicalName());
     types.add(StateManagerProvider.class.getCanonicalName());
     return types;
@@ -58,6 +60,7 @@ public class AnnotationProcess extends AbstractProcessor {
   Set<? extends Element> bindStates = null;
   Set<? extends Element> attachStates = null;
   Set<? extends Element> shareStates = null;
+  Set<? extends Element> scopeStates = null;
 
   @Override
   public boolean process(Set<? extends TypeElement> set, RoundEnvironment roundEnvironment) {
@@ -77,6 +80,11 @@ public class AnnotationProcess extends AbstractProcessor {
         roundEnvironment.getElementsAnnotatedWith(ShareState.class);
     if (shareStates == null || shareStates.isEmpty()) {
       shareStates = tmpShareStates;
+    }
+    Set<? extends Element> tmpScopeStates =
+            roundEnvironment.getElementsAnnotatedWith(ScopeState.class);
+    if (scopeStates == null || scopeStates.isEmpty()) {
+      scopeStates = tmpScopeStates;
     }
     if (roundEnvironment.processingOver()) {
       for (Element bindState : bindStates) {
@@ -109,13 +117,23 @@ public class AnnotationProcess extends AbstractProcessor {
           e.printStackTrace();
         }
       }
+      for (Element scopeState : scopeStates) {
+        ScopeBinderGenerator scopeBinderGenerator = new ScopeBinderGenerator(
+                scopeState
+        );
+        try {
+          scopeBinderGenerator.generate().writeTo(filer);
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
+      }
       if (packageName.isEmpty() || className.isEmpty()) {
         printError(
             "You need to add a class that is annotated by @StateManagerProvider to your module!");
         return true;
       }
       StateManagerGenerator managerGenerator = new StateManagerGenerator(
-          packageName, className, bindStates,attachStates, shareStates
+          packageName, className, bindStates,attachStates, shareStates,scopeStates
       );
       try {
         managerGenerator.generate().writeTo(filer);

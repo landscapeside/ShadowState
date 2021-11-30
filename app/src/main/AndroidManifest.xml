@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.landside.example">
+
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CAMERA" />
 
     <application
         android:name=".TestApp"
@@ -9,17 +13,46 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
+        android:requestLegacyExternalStorage="true"
         android:theme="@style/AppTheme">
         <activity android:name=".SecondActivity"></activity>
         <activity android:name=".MainActivity">
+
+        </activity>
+        <activity android:name=".viewpager.TabActivity">
+        </activity>
+
+        <activity android:name=".WebActivity">
+
+
+        </activity>
+
+        <activity android:name=".scope.ScopeTestStartupActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".viewpager.TabActivity">
+
+        <activity android:name=".scope.ScopeTestFirstActivity" >
+
         </activity>
+
+        <activity android:name=".scope.ScopeTestSecondActivity" />
+
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.landside.shadowstate.app.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true"
+            tools:replace="name,authorities,exported,grantUriPermissions">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths"
+                tools:replace="name,resource"/>
+        </provider>
     </application>
 
 </manifest>

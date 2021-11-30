@@ -31,6 +31,10 @@ class SecondActivity : AppCompatActivity(),MainView ,ShareView{
     setShareName(presenter.shareAgent.state.shareName)
     setShareCount(presenter.shareAgent.state.shareCount)
     setShareItem(presenter.shareAgent.state.item)
+    val fm = supportFragmentManager
+    val transaction = fm.beginTransaction()
+    transaction.add(R.id.fragment_box, TestFragment())
+    transaction.commit()
   }
 
   override fun setName(name: String) {

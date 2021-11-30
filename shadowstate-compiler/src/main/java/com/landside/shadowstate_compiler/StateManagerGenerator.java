@@ -3,6 +3,7 @@ package com.landside.shadowstate_compiler;
 import com.google.common.collect.Lists;
 import com.landside.shadowstate_annotation.AttachState;
 import com.landside.shadowstate_annotation.BindState;
+import com.landside.shadowstate_annotation.ScopeState;
 import com.landside.shadowstate_annotation.ShareState;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ArrayTypeName;
@@ -33,19 +34,22 @@ public class StateManagerGenerator {
   private Set<? extends Element> bindStates;
   private Set<? extends Element> attachStates;
   private Set<? extends Element> shareStates;
+  private Set<? extends Element> scopeStates;
 
   public StateManagerGenerator(
       String packageName,
       String className,
       Set<? extends Element> bindStates,
       Set<? extends Element> attachStates,
-      Set<? extends Element> shareStates
+      Set<? extends Element> shareStates,
+      Set<? extends Element> scopeStates
   ) {
     this.packageName = packageName;
     this.className = className;
     this.bindStates = bindStates;
     this.attachStates = attachStates;
     this.shareStates = shareStates;
+    this.scopeStates = scopeStates;
   }
 
   public JavaFile generate() throws Exception {
@@ -68,6 +72,12 @@ public class StateManagerGenerator {
         TypeClass.ShareBinder
     );
 
+    TypeName scopeBinderType = ParameterizedTypeName.get(
+        ClassName.get(Map.class),
+        classWithWildcard,
+        TypeClass.ScopeBinder
+    );
+
     FieldSpec stateMapParam = FieldSpec
         .builder(stateMapType, "stateInfoMap")
         .initializer(CodeBlock.builder().add("new $T<>()", ClassName.get(HashMap.class)).build())
@@ -80,7 +90,12 @@ public class StateManagerGenerator {
         .builder(shareBinderType, "shareBinderMap")
         .initializer(CodeBlock.builder().add("new $T<>()", ClassName.get(HashMap.class)).build())
         .build();
+    FieldSpec scopeBinderMap = FieldSpec
+        .builder(scopeBinderType, "scopeBinderMap")
+        .initializer(CodeBlock.builder().add("new $T<>()", ClassName.get(HashMap.class)).build())
+        .build();
 
+    // constructor
     MethodSpec.Builder constructorBuilder = MethodSpec.constructorBuilder()
         .addModifiers(Modifier.PUBLIC);
 
@@ -206,13 +221,65 @@ public class StateManagerGenerator {
           shareBinderMapBlock.build()
       );
     }
+    for (Element state : scopeStates) {
+      String clsName = ClassName.get((TypeElement) state).simpleName();
+      List<? extends TypeMirror> stateCls = new ArrayList<>(),agentCls = new ArrayList<>();
+      try {
+        state.getAnnotation(ScopeState.class).states();
+      } catch (MirroredTypesException e) {
+        stateCls = e.getTypeMirrors();
+      }
+      try {
+        state.getAnnotation(ScopeState.class).agents();
+      } catch (MirroredTypesException e) {
+        agentCls = e.getTypeMirrors();
+      }
+      ClassName binder = ClassName.get(
+          ClassName.get((TypeElement) state).packageName(),
+          clsName + "ScopeBinder"
+      );
+      CodeBlock.Builder stateBlock = CodeBlock.builder();
+      stateBlock.add("new Class[] { ");
+      List<CodeBlock> codeBlocks = new ArrayList<>();
+      for (int i = 0; i < stateCls.size(); i++) {
+        codeBlocks.add(
+            CodeBlock.builder().add("$T.class", ClassName.get(stateCls.get(i))).build());
+      }
+      stateBlock.add(CodeBlock.join(codeBlocks, ","));
+      stateBlock.add("} ");
+      CodeBlock.Builder agentBlock = CodeBlock.builder();
+      agentBlock.add("new Class[] { ");
+      codeBlocks.clear();
+      for (int i = 0; i < agentCls.size(); i++) {
+        codeBlocks.add(
+            CodeBlock.builder().add("$T.class", ClassName.get(agentCls.get(i))).build());
+      }
+      agentBlock.add(CodeBlock.join(codeBlocks, ","));
+      agentBlock.add("} ");
+      CodeBlock.Builder scopeBinderMapBlock = CodeBlock.builder();
+      scopeBinderMapBlock.add(
+          "scopeBinderMap.put($T.class,new $T(",
+          ClassName.get((TypeElement) state),
+          binder
+      );
+      scopeBinderMapBlock.add(
+          CodeBlock.join(Lists.newArrayList(stateBlock.build(), agentBlock.build()), ","));
+      scopeBinderMapBlock.add("))\n");
+      constructorBuilder.addStatement(
+          scopeBinderMapBlock.build()
+      );
+    }
 
+    // bind method
     MethodSpec bind = MethodSpec.methodBuilder("bind")
         .addModifiers(Modifier.PUBLIC)
         .addAnnotation(AnnotationSpec.builder(Override.class).build())
         .addParameter(TypeClass.LifecycleOwner, "lifecycleOwner")
         .addCode(
-            "if (getBinder(lifecycleOwner) == null  && attachBinderMap.get(lifecycleOwner.getClass()) == null && shareBinderMap.get(lifecycleOwner.getClass()) == null) {\n"
+            "if (getBinder(lifecycleOwner) == null "
+                + " && attachBinderMap.get(lifecycleOwner.getClass()) == null "
+                + "&& shareBinderMap.get(lifecycleOwner.getClass()) == null "
+                + "&& scopeBinderMap.get(lifecycleOwner.getClass()) == null) {\n"
                 +
                 "  return;\n"
                 +
@@ -221,6 +288,8 @@ public class StateManagerGenerator {
             "getBinder(lifecycleOwner).observe(lifecycleOwner);\n}\n")
         .addCode("if(attachBinderMap.get(lifecycleOwner.getClass()) != null){\n" +
             "attachBinderMap.get(lifecycleOwner.getClass()).observe(lifecycleOwner);\n}\n")
+        .addCode("if(scopeBinderMap.get(lifecycleOwner.getClass()) != null){\n" +
+            "scopeBinderMap.get(lifecycleOwner.getClass()).observe(lifecycleOwner);\n}\n")
         .addCode("if (shareBinderMap.get(lifecycleOwner.getClass()) != null) {\n"
                 + " ShareBinder shareBinder = shareBinderMap.get(lifecycleOwner.getClass());\n"
                 + "   Class[] shareStateCls = shareBinder.getStateCls();\n"
@@ -242,6 +311,7 @@ public class StateManagerGenerator {
         )
         .build();
 
+    // rebind method
     MethodSpec rebind = MethodSpec.methodBuilder("rebind")
         .addModifiers(Modifier.PUBLIC)
         .addAnnotation(AnnotationSpec.builder(Override.class).build())
@@ -256,14 +326,23 @@ public class StateManagerGenerator {
             "}\n")
         .addStatement(
             "attachBinderMap.get(lifecycleOwner.getClass()).reset(lifecycleOwner)")
+        .addCode("if (scopeBinderMap.get(lifecycleOwner.getClass()) == null) {\n" +
+            "  return;\n" +
+            "}\n")
+        .addStatement(
+            "scopeBinderMap.get(lifecycleOwner.getClass()).reset(lifecycleOwner)")
         .build();
 
+    // remove method
     MethodSpec remove = MethodSpec.methodBuilder("remove")
         .addModifiers(Modifier.PUBLIC)
         .addAnnotation(AnnotationSpec.builder(Override.class).build())
         .addParameter(TypeClass.LifecycleOwner, "lifecycleOwner")
         .addCode(
-            "if (getBinder(lifecycleOwner) == null && attachBinderMap.get(lifecycleOwner.getClass()) == null && shareBinderMap.get(lifecycleOwner.getClass()) == null) {\n"
+            "if (getBinder(lifecycleOwner) == null "
+                + "&& attachBinderMap.get(lifecycleOwner.getClass()) == null "
+                + "&& shareBinderMap.get(lifecycleOwner.getClass()) == null "
+                + "&& scopeBinderMap.get(lifecycleOwner.getClass()) == null) {\n"
                 +
                 "  return;\n"
                 +
@@ -276,8 +355,12 @@ public class StateManagerGenerator {
             + "     shareBinder.remove(lifecycleOwner);\n"
             + "}"
         )
+        .addCode("    if (scopeBinderMap.get(lifecycleOwner.getClass()) != null) {\n"
+            + "      scopeBinderMap.get(lifecycleOwner.getClass()).remove(lifecycleOwner);\n"
+            + "    }")
         .build();
 
+    // detach method
     MethodSpec detach = MethodSpec.methodBuilder("detach")
         .addModifiers(Modifier.PUBLIC)
         .addAnnotation(AnnotationSpec.builder(Override.class).build())
@@ -286,6 +369,7 @@ public class StateManagerGenerator {
             "attachBinderMap.get(lifecycleOwner.getClass()).remove(lifecycleOwner);\n}\n")
         .build();
 
+    // injectAgent method
     MethodSpec injectDispatcher = MethodSpec.methodBuilder("injectAgent")
         .addModifiers(Modifier.PUBLIC)
         .addAnnotation(AnnotationSpec.builder(Override.class).build())
@@ -310,6 +394,17 @@ public class StateManagerGenerator {
                 + "         }\n"
                 + "    }\n"
                 + " }\n"
+                + "      if (scopeBinderMap.get(lifecycleOwner.getClass()) != null) {\n"
+                + "        ShadowStateAgent[] agents =\n"
+                + "            scopeBinderMap.get(lifecycleOwner.getClass()).getAgent(lifecycleOwner);\n"
+                + "        if (agents != null) {\n"
+                + "          for (int i = 0; i < agents.length; i++) {\n"
+                + "            if (agents[i].getClass() == cls) {\n"
+                + "              AgentInjection.INSTANCE.inject(instance, agents[i]);\n"
+                + "            }\n"
+                + "          }\n"
+                + "        }\n"
+                + "      }\n"
                 + "   for (Map.Entry<Class<?>, ShareBinder> entry : shareBinderMap.entrySet()) {\n"
                 + "     ShareBinder shareBinder = entry.getValue();\n"
                 + "        $T agents = shareBinder.getAgent(lifecycleOwner);\n"
@@ -325,6 +420,7 @@ public class StateManagerGenerator {
             ArrayTypeName.of(TypeClass.ShadowStateAgent))
         .build();
 
+    // getBinder method
     MethodSpec getBinder = MethodSpec.methodBuilder("getBinder")
         .addModifiers(Modifier.PUBLIC)
         .addAnnotation(AnnotationSpec.builder(Override.class).build())
@@ -349,6 +445,7 @@ public class StateManagerGenerator {
         .addField(stateMapParam)
         .addField(attachBinderMap)
         .addField(shareBinderMap)
+        .addField(scopeBinderMap)
         .build();
     return JavaFile.builder(packageName, generateClass)
         .build();

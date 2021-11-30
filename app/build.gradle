@@ -57,6 +57,9 @@ android {
         targetCompatibility 1.8
         sourceCompatibility 1.8
     }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
 }
 
 dependencies {
@@ -84,6 +87,20 @@ dependencies {
 
     api project(":shadowstate")
     kapt project(':shadowstate-compiler')
+
+    implementation rootProject.ext.matisse
+    implementation rootProject.ext.compressor
+    implementation rootProject.ext.rxJava
+    implementation rootProject.ext.rxAndroid
+    implementation rootProject.ext.rxPermissions
+    implementation rootProject.ext.coroutinesCore
+    implementation rootProject.ext.coroutinesAndroid
+    implementation rootProject.ext.lifecycleKtx
+    api(rootProject.ext.glide) {
+        exclude group: "com.android.support"
+    }
+    kapt rootProject.ext.glideCompiler
+    debugImplementation rootProject.ext.leakCanary
 
 //  implementation "com.github.landscapeside.ShadowState:shadowstate:0.0.1"
 //  kapt 'com.github.landscapeside.ShadowState:shadowstate-compiler:0.0.1'

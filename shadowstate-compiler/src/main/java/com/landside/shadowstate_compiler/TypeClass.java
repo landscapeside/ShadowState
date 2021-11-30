@@ -11,12 +11,16 @@ public class TypeClass {
       ClassName.get("com.landside.shadowstate", "ShareBinder");
   public static final ClassName AttachBinder =
       ClassName.get("com.landside.shadowstate", "AttachBinder");
+  public static final ClassName ScopeBinder =
+          ClassName.get("com.landside.shadowstate", "ScopeBinder");
   public static final ClassName StateAgent =
       ClassName.get("com.landside.shadowstate", "StateAgent");
   public static final ClassName ShadowStateAgent =
       ClassName.get("com.landside.shadowstate", "ShadowStateAgent");
   public static final ClassName AttachAgent =
       ClassName.get("com.landside.shadowstate", "AttachAgent");
+  public static final ClassName ScopeAgent =
+          ClassName.get("com.landside.shadowstate", "ScopeAgent");
   public static final ClassName AgentInjection =
       ClassName.get("com.landside.shadowstate", "AgentInjection");
   public static final ClassName ShadowState =

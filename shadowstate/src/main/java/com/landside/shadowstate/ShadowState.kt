@@ -1,5 +1,6 @@
 package com.landside.shadowstate
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -22,6 +23,7 @@ import com.stardust.enhancedfloaty.util.FloatingWindowPermissionUtil
 import io.reactivex.subjects.PublishSubject
 import java.lang.reflect.Type
 
+@SuppressLint("StaticFieldLeak")
 object ShadowState {
 
   private enum class StateType{
@@ -37,6 +39,8 @@ object ShadowState {
 
   val shareStates: MutableMap<Type, MutableLiveData<out Any>> = mutableMapOf()
   val attachStates:MutableMap<LifecycleOwner, MutableMap<Type,MutableLiveData<out Any>>> = mutableMapOf()
+  var scopeDatas:MutableMap<Type,MutableLiveData<out Any>> = mutableMapOf()
+  var scopes:MutableMap<Type,MutableList<LifecycleOwner>> = mutableMapOf()
 
   fun init(
     context: Context,
@@ -114,6 +118,26 @@ object ShadowState {
     return this
   }
 
+  fun <STATE : Any>  setupScope(
+    stateCls:Class<*>,
+    state: STATE
+  ): ShadowState{
+    val liveData = MutableLiveData<STATE>()
+    liveData.value = state
+    scopeDatas[stateCls]= liveData
+    return this
+  }
+
+  fun appendScopedLifecycleOwner(
+    stateCls: Class<*>,
+    lifecycleOwner: LifecycleOwner
+  ){
+    if (scopes[stateCls] == null) {
+      scopes[stateCls] = mutableListOf()
+    }
+    scopes[stateCls]!!.add(lifecycleOwner)
+  }
+
   fun bind(lifecycleOwner: LifecycleOwner) {
     if (ZipStateManager.managers.isEmpty()) {
       throw IllegalStateException(
@@ -143,6 +167,15 @@ object ShadowState {
     pagesStack.remove(view)
     attachStates.remove(view)
     ZipStateManager.remove(view as LifecycleOwner)
+    scopes.entries.forEach {
+      it.value.remove(view)
+    }
+    scopes.entries.forEach {
+      if (it.value.isEmpty()) {
+        scopeDatas.remove(it.key)
+      }
+    }
+    scopes = scopes.filter { it.value.isNotEmpty() }.toMutableMap()
   }
 
   fun detachFragment(view: Any){

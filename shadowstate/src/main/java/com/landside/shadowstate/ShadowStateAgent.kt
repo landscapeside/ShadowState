@@ -34,6 +34,8 @@ abstract class ShadowStateAgent<STATE : Any, VIEW> : Observer<STATE>, LifecycleS
   fun onDestroy(@NotNull owner: LifecycleOwner) {
     lifecycleEvents.onNext(Lifecycle.Event.ON_DESTROY)
     ShadowState.removePage(view!!)
+    view = null
+    liveData.removeObserver(this)
   }
 
   override fun lifecycle(): Observable<Lifecycle.Event> {

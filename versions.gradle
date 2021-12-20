@@ -38,7 +38,7 @@ ext {
     rxJava = 'io.reactivex.rxjava2:rxjava:2.1.13'
     rxAndroid = 'io.reactivex.rxjava2:rxandroid:2.0.2'
 
-    logger = 'com.orhanobut:logger:2.2.0'
+    logger = 'com.github.landscapeside:PanelLogger:0.0.14'
     gson = "com.google.code.gson:gson:2.6.2"
 
     autodispose = [group: 'com.uber.autodispose', name: 'autodispose-android', version: '1.1.0']

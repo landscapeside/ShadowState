@@ -10,13 +10,11 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
+import com.landside.panellogger.Logger
 import com.landside.shadowstate.ShadowState.StateType.PAGE
 import com.landside.shadowstate.ShadowState.StateType.SHARE
 import com.landside.shadowstate.watch.WatcherFloaty
 import com.landside.shadowstate_annotation.BindState
-import com.orhanobut.logger.AndroidLogAdapter
-import com.orhanobut.logger.Logger
-import com.orhanobut.logger.PrettyFormatStrategy
 import com.stardust.enhancedfloaty.FloatyService
 import com.stardust.enhancedfloaty.ResizableExpandableFloatyWindow
 import com.stardust.enhancedfloaty.util.FloatingWindowPermissionUtil
@@ -49,18 +47,6 @@ object ShadowState {
     managers: Array<StateManager>
   ): ShadowState {
     this.context = context
-    Logger.addLogAdapter(object : AndroidLogAdapter(
-        PrettyFormatStrategy
-            .newBuilder()
-            .methodCount(0)
-            .tag("PAGE_STATE")
-            .build()
-    ) {
-      override fun isLoggable(
-        priority: Int,
-        tag: String?
-      ): Boolean = loggable
-    })
     floatyWindow = object : ResizableExpandableFloatyWindow(WatcherFloaty()) {
       override fun onCreate(
         service: FloatyService?,
@@ -184,7 +170,9 @@ object ShadowState {
 
   var stateRecord: (Any) -> Unit = {
     Logger.w(it.javaClass.canonicalName ?: "")
-    Logger.json(JSONS.parseJson(it))
+    JSONS.parseJson(it)?.let {
+      Logger.json(it)
+    }
   }
 
   val watchRecord: (Any) -> Unit = {

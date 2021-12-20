@@ -9,11 +9,11 @@ import com.landside.shadowstate_annotation.InjectAgent
 import com.landside.shadowstate_annotation.ScopeState
 import kotlinx.android.synthetic.main.activity_scope_test_second.tv_foo
 
-@ScopeState(states = [ScopeInfo::class],agents = [ScopeSecondAgent::class])
+@ScopeState(states = [ScopeInfo::class],agents = [ScopeFirstAgent::class])
 class ScopeTestSecondActivity: AppCompatActivity(R.layout.activity_scope_test_second),ScopeView {
 
   @InjectAgent
-  lateinit var agent: ScopeSecondAgent
+  lateinit var agent: ScopeFirstAgent
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)

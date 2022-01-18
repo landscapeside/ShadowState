@@ -19,9 +19,9 @@ class MainAgent : StateAgent<MainState, MainView>() {
         view?.let {
             ShadowState.injectDispatcher(this, it as LifecycleOwner)
         }
-        listen({ it.name }, {
+        listen(false,{ it.name }, {
             view?.setName("$it${state.amendInternal}  gender:${state.childState.gender}")
-            setState { it.copy(amendInternal = it.amendInternal+1) }
+//            setState { it.copy(amendInternal = it.amendInternal+1) }
         })
         listen({it.listStates},{
             view?.setListContents(it)

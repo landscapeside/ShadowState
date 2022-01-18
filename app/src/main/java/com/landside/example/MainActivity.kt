@@ -3,6 +3,7 @@ package com.landside.example
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.landside.example.share.Share
 import com.landside.example.share.Share.ShareItem
@@ -19,8 +20,8 @@ import kotlinx.android.synthetic.main.activity_main.tv_share_item
 import kotlinx.android.synthetic.main.activity_main.tv_share_name
 
 @BindState(state = MainState::class, agent = MainAgent::class)
-@ShareState(states = [Share::class],agent = [MainShareAgent::class])
-class MainActivity : AppCompatActivity(), MainView,ShareView {
+@ShareState(states = [Share::class], agent = [MainShareAgent::class])
+class MainActivity : AppCompatActivity(), MainView, ShareView {
   lateinit var presenter: MainPresenter
 
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,6 +34,7 @@ class MainActivity : AppCompatActivity(), MainView,ShareView {
 
   override fun setName(name: String) {
     tv_name.text = name
+    Toast.makeText(this, "change name !!${name}", Toast.LENGTH_SHORT).show()
   }
 
   override fun setListContents(list: List<String>) {
@@ -51,11 +53,11 @@ class MainActivity : AppCompatActivity(), MainView,ShareView {
     startActivity(Intent(this, TabActivity::class.java))
   }
 
-  fun openWatcher(view: View){
+  fun openWatcher(view: View) {
     ShadowState.openWatcher()
   }
 
-  fun openShareWatcher(view: View){
+  fun openShareWatcher(view: View) {
     ShadowState.openShareWatcher()
   }
 

@@ -23,7 +23,7 @@ class MainPresenter(val owner: LifecycleOwner) {
     }
 
   fun changeName() {
-    name += "++"
+    name = "++"
     shareAgent.setState {
       it.copy(
           shareName = "shareName" + shareAgent.state.shareCount,
